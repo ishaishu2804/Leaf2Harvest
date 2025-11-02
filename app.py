@@ -1692,7 +1692,6 @@ def checkout():
 @app.route('/openai-diagnosis', methods=['GET', 'POST'])
 @login_required
 def openai_diagnosis():
-    # Get usage stats for display
     usage_stats = get_usage_stats(current_user)
     
     if request.method == 'POST':
@@ -1705,104 +1704,54 @@ def openai_diagnosis():
             flash('No selected file')
             return redirect(request.url)
             
-        # Get crop type from form
         crop_type = request.form.get('crop_type', 'unknown')
         if not crop_type:
             flash('Please select crop type for accurate diagnosis')
             return redirect(request.url)
         
         if file and allowed_file(file.filename):
-            # Save and encode the image
             filename = secure_filename(file.filename)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
+            
             with open(filepath, "rb") as image_file:
                 base64_image = base64.b64encode(image_file.read()).decode("utf-8")
             
-            # Try OpenAI first, then fallback to local analysis
             diagnosis = None
             confidence = 0
             treatment = None
             diagnosis_method = 'fallback'
             
-            # Check if user can use OpenAI and attempt OpenAI analysis
             can_use_openai_service = OPENAI_AVAILABLE and can_use_openai(current_user)
             
             if can_use_openai_service:
                 try:
-                    # Get OpenAI service (may return None if API key not set)
                     service = get_openai_service()
-                    if service is None:
-                        print("[WARNING] OpenAI service not available - API key not set")
-                        diagnosis = None
-                    else:
-                        # Use the new OpenAI service for better error handling and usage tracking
+                    if service:
                         result = service.analyze_crop_disease(base64_image, crop_type, current_user.id)
-                        
                         if result['success']:
                             raw_diagnosis = result['response']
-                            
-                            # Parse the structured response
                             diagnosis, confidence, treatment = parse_openai_response(raw_diagnosis, crop_type)
                             diagnosis_method = 'openai'
-                            
-                            # Log usage using the new usage logger
                             usage_logger.log_openai_usage(result['usage_data'])
-                            
-                            # Increment usage counter (keep existing functionality)
                             increment_openai_usage(current_user)
-                            
-                            # Log usage (keep existing functionality)
                             log_usage(current_user, 'openai', crop_type, confidence)
-                            
-                            # Adjust confidence based on image quality
-                            image_quality = assess_image_quality(filepath)
-                            quality_adjustment = (image_quality - 50) * 0.3  # Scale quality impact
-                            confidence = min(confidence + quality_adjustment, 95)
-                            
-                            print(f"[SUCCESS] OpenAI analysis completed for {crop_type} (Quality: {image_quality}%, Confidence: {confidence:.1f}%)")
-                            print(f"[USAGE] Tokens: {result['usage_data']['total_tokens']}, Cost: ${result['usage_data']['estimated_cost']}")
                         else:
-                            # API call failed, but we still log the attempt
-                            usage_logger.log_openai_usage(result['usage_data'])
                             print(f"[WARNING] OpenAI API failed: {result['error']}")
-                            diagnosis = None
-                    
+                    else:
+                        print("[WARNING] OpenAI service not available - API key not set")
                 except Exception as e:
                     print(f"[WARNING] OpenAI service error: {e}")
-                    # Log failed attempt
-                    usage_logger.log_openai_usage({
-                        'user_id': current_user.id,
-                        'timestamp': datetime.datetime.utcnow(),
-                        'model_name': 'gpt-4o',
-                        'prompt_tokens': 0,
-                        'completion_tokens': 0,
-                        'total_tokens': 0,
-                        'estimated_cost': 0.0,
-                        'error': str(e)
-                    })
-                    diagnosis = None
-            else:
-                # User has reached daily limit or OpenAI not available
-                if not OPENAI_AVAILABLE:
-                    flash('OpenAI service is currently unavailable. Using fallback analysis.', 'warning')
-                elif not can_use_openai(current_user):
-                    remaining = 5 - current_user.openai_usage_today
-                    flash(f'Daily OpenAI limit reached ({current_user.openai_usage_today}/5). Upgrade to Premium for unlimited access!', 'warning')
             
-            # Fallback to local analysis if OpenAI fails
+            # ✅ SAFE FALLBACK BLOCK
             if not diagnosis:
                 try:
-                    # Use local disease detection model if available
                     if disease_model is not None and disease_class_names:
-                        # Load and preprocess image for local model
-                        img = Image.open(filepath)
-                        img = img.convert('RGB')
-                        img = img.resize((224, 224))  # Resize for model
+                        img = Image.open(filepath).convert('RGB')
+                        img = img.resize((224, 224))
                         img_array = np.array(img) / 255.0
                         img_array = np.expand_dims(img_array, axis=0)
                         
-                        # Make prediction
                         predictions = disease_model.predict(img_array)
                         predicted_class_idx = np.argmax(predictions[0])
                         confidence_score = float(predictions[0][predicted_class_idx])
@@ -1812,39 +1761,25 @@ def openai_diagnosis():
                             diagnosis = f"Detected: {disease_name}"
                             confidence = int(confidence_score * 100)
                             diagnosis_method = 'local_model'
-                            
-                            # Generate treatment recommendations based on disease
                             treatment = generate_treatment_recommendations(disease_name)
-                            
-                            # Log usage
                             log_usage(current_user, 'local_model', crop_type, confidence)
-                            
-                            # Log usage with new logger
                             usage_logger.log_local_model_usage(current_user.id, 'disease_model', confidence)
-                            
-                            print(f"[SUCCESS] Local model analysis: {disease_name} ({confidence}%)")
                         else:
                             raise Exception("Invalid prediction index")
                     else:
-                        raise Exception("Local model not available")
+                        # 👇 This line prevents crash when model file missing
+                        raise Exception("Disease model not found or not loaded")
                         
                 except Exception as e:
-                    print(f"[WARNING] Local model failed: {e}")
-                    # Ultimate fallback - crop-specific analysis
+                    print(f"[INFO] Falling back: {e}")
                     diagnosis = f"{crop_type.title()} Plant Health Analysis"
                     confidence = 70
                     treatment = generate_crop_specific_fallback(crop_type)
                     diagnosis_method = 'fallback'
-                    
-                    # Log usage
                     log_usage(current_user, 'fallback', crop_type, confidence)
-                    
-                    # Log usage with new logger
                     usage_logger.log_fallback_usage(current_user.id, 'crop_specific')
-                    
-                    print(f"[INFO] Using crop-specific fallback analysis for {crop_type}")
             
-            # Save diagnosis to database for history
+            # ✅ Save diagnosis history
             if current_user.is_authenticated:
                 new_diagnosis = Diagnosis(
                     user_id=current_user.id,
@@ -1859,14 +1794,18 @@ def openai_diagnosis():
                 session.add(new_diagnosis)
                 session.commit()
             
-            return render_template('diagnosis_result.html', 
-                                 disease=diagnosis, 
-                                 image_path=filename,
-                                 confidence=confidence,
-                                 treatment=treatment,
-                                 diagnosis_method=diagnosis_method,
-                                 usage_stats=get_usage_stats(current_user))
+            return render_template(
+                'diagnosis_result.html',
+                disease=diagnosis,
+                image_path=filename,
+                confidence=confidence,
+                treatment=treatment,
+                diagnosis_method=diagnosis_method,
+                usage_stats=get_usage_stats(current_user)
+            )
+
     return render_template('openai_diagnosis.html', usage_stats=usage_stats)
+
 
 @app.route('/subscription')
 @login_required

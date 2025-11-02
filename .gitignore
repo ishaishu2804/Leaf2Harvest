@@ -11,8 +11,6 @@ __pycache__/
 
 # Data / Cache
 *.csv
-*.pkl
-*.h5
 *.zip
 *.tar
 *.gz
