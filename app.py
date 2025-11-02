@@ -2349,12 +2349,8 @@ def format_health_data_for_charts(weather_data, pest_data, disease_data):
     
     return chart_data
 
-if __name__ == '__main__':
-    # In a real application, database creation and potentially data seeding
-    # would be handled separately, e.g., with Flask-Migrate.
-    # For this example, we assume models.py has been run once to create the db.
-    import os
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
 
     
