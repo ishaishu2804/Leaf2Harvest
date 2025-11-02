@@ -1,0 +1,716 @@
+{% extends "base.html" %}
+
+{% block title %}🌾 Weather & Pest Risk for Farmers{% endblock %}
+
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    
+    body {
+        background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+        font-family: 'Poppins', sans-serif;
+        min-height: 100vh;
+    }
+    
+    .main-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    .weather-card {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    
+    .farm-bg {
+        background: linear-gradient(135deg, rgba(76,175,80,0.8), rgba(139,195,74,0.8)), 
+                    url("/static/farmland.jpg") center/cover no-repeat;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    
+    .farm-bg::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(76,175,80,0.1), rgba(139,195,74,0.1));
+    }
+    
+    .farm-bg h2 {
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        font-weight: 700;
+        font-size: 2.5rem;
+        z-index: 1;
+        position: relative;
+    }
+    
+    .card-body {
+        padding: 2rem;
+    }
+    
+    .form-section {
+        background: linear-gradient(135deg, #f8f9fa, #ffffff);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid #e9ecef;
+    }
+    
+    .form-control {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #4caf50;
+        box-shadow: 0 0 0 0.2rem rgba(76,175,80,0.25);
+    }
+    
+    .btn-success {
+        background: linear-gradient(135deg, #4caf50, #66bb6a);
+        border: none;
+        border-radius: 10px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(76,175,80,0.4);
+    }
+    
+    .emoji {
+        font-size: 1.5rem;
+        margin-right: 0.5rem;
+    }
+    
+    /* Forecast Cards */
+    .forecast-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .forecast-card {
+        background: #ffffff;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    
+    .forecast-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .forecast-card.high-risk {
+        border-left: 4px solid #dc3545;
+        background: linear-gradient(135deg, #fff5f5, #ffffff);
+    }
+    
+    .forecast-card.moderate-risk {
+        border-left: 4px solid #ffc107;
+        background: linear-gradient(135deg, #fffbf0, #ffffff);
+    }
+    
+    .forecast-card.low-risk {
+        border-left: 4px solid #28a745;
+        background: linear-gradient(135deg, #f0fff4, #ffffff);
+    }
+    
+    /* Risk Assessment Sections */
+    .risk-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin: 2rem 0;
+    }
+    
+    .risk-box {
+        background: #ffffff;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+    }
+    
+    .risk-box h3 {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+    }
+    
+    /* Alert Styling */
+    .alert {
+        border-radius: 10px;
+        border: none;
+        padding: 1rem 1.5rem;
+        font-weight: 500;
+    }
+    
+    .alert-danger {
+        background: linear-gradient(135deg, #ffebee, #ffffff);
+        color: #c62828;
+        border-left: 4px solid #dc3545;
+    }
+    
+    .alert-warning {
+        background: linear-gradient(135deg, #fff8e1, #ffffff);
+        color: #f57c00;
+        border-left: 4px solid #ffc107;
+    }
+    
+    .alert-success {
+        background: linear-gradient(135deg, #e8f5e8, #ffffff);
+        color: #2e7d32;
+        border-left: 4px solid #28a745;
+    }
+    
+    .alert-info {
+        background: linear-gradient(135deg, #e3f2fd, #ffffff);
+        color: #1565c0;
+        border-left: 4px solid #2196f3;
+    }
+    
+    /* Section Headers */
+    .section-header {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    /* Summary Stats */
+    .summary-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .stat-card {
+        text-align: center;
+        padding: 1rem;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+    
+    .stat-card.danger {
+        background: linear-gradient(135deg, #ffebee, #ffffff);
+        color: #c62828;
+    }
+    
+    .stat-card.warning {
+        background: linear-gradient(135deg, #fff8e1, #ffffff);
+        color: #f57c00;
+    }
+    
+    .stat-card.success {
+        background: linear-gradient(135deg, #e8f5e8, #ffffff);
+        color: #2e7d32;
+    }
+    
+    /* Sunrise/Sunset Times */
+    .sun-times {
+        background: linear-gradient(135deg, #ffd54f, #ffb74d);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        color: #2c3e50;
+        text-align: center;
+    }
+    
+    .sun-times h4 {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    
+    .sun-times .time-display {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+    
+    .sun-times .time-item {
+        text-align: center;
+    }
+    
+    .sun-times .time-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+    
+    .sun-times .time-label {
+        font-size: 0.9rem;
+        color: #5d6d7e;
+        margin-top: 0.5rem;
+    }
+    
+    /* Analytics Section */
+    .analytics-section {
+        background: linear-gradient(135deg, #f8f9fa, #ffffff);
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 2rem 0;
+        border: 1px solid #e9ecef;
+    }
+    
+    .analytics-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .analytics-header h3 {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .analytics-header p {
+        color: #6c757d;
+        font-size: 1.1rem;
+    }
+    
+    
+    /* Comparison Cards */
+    .comparison-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .comparison-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .comparison-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    }
+    
+    .comparison-card .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+    }
+    
+    .comparison-card .metric-change {
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        display: inline-block;
+    }
+    
+    .comparison-card .metric-change.positive {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .comparison-card .metric-change.negative {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .comparison-card .metric-change.neutral {
+        background: #e2e3e5;
+        color: #383d41;
+    }
+    
+    /* Trend Indicators */
+    .trend-indicator {
+        display: inline-flex;
+        align-items: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .trend-up {
+        color: #dc3545;
+    }
+    
+    .trend-down {
+        color: #28a745;
+    }
+    
+    .trend-stable {
+        color: #6c757d;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .main-container {
+            padding: 1rem 0.5rem;
+        }
+        
+        .farm-bg h2 {
+            font-size: 2rem;
+        }
+        
+        .forecast-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .risk-summary {
+            grid-template-columns: 1fr;
+        }
+        
+        .summary-stats {
+            grid-template-columns: 1fr;
+        }
+        
+        .comparison-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .sun-times .time-display {
+            flex-direction: column;
+            gap: 1rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .form-section {
+            padding: 1rem;
+        }
+        
+        .analytics-section {
+            padding: 1rem;
+        }
+    }
+</style>
+<div class="main-container">
+    <div class="weather-card">
+        <div class="farm-bg">
+            <h2>🌱 Weather & Pest Risk for Farmers</h2>
+        </div>
+        <div class="card-body">
+            <!-- Search Form -->
+            <div class="form-section">
+                <form method="POST">
+                    <div class="mb-4">
+                        <label for="city" class="form-label fw-bold">Enter Your City or Village Name:</label>
+                        <input type="text" class="form-control" id="city" name="city" required placeholder="e.g., Chennai,IN or London,GB">
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <span class="emoji">🚜</span> Get Weather & Pest Risk
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Current Weather Data -->
+            {% if forecast %}
+                <div class="risk-box">
+                    <h3 class="section-header">
+                        <span class="emoji">🌤️</span> Current Weather for {{ forecast.city|capitalize }}
+                    </h3>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center p-3 bg-light rounded">
+                                <div class="emoji">🌡️</div>
+                                <h4 class="mb-1">{{ forecast.temperature }}°C</h4>
+                                <small class="text-muted">Temperature</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3 bg-light rounded">
+                                <div class="emoji">💧</div>
+                                <h4 class="mb-1">{{ forecast.humidity }}%</h4>
+                                <small class="text-muted">Humidity</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3 bg-light rounded">
+                                <div class="emoji">🌧️</div>
+                                <h4 class="mb-1">{{ forecast.rainfall }} mm</h4>
+                                <small class="text-muted">Rainfall</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sunrise/Sunset Times -->
+                <div class="sun-times">
+                    <h4><span class="emoji">☀️</span> Ideal Farming Times</h4>
+                    <div class="time-display">
+                        <div class="time-item">
+                            <div class="time-value">06:30</div>
+                            <div class="time-label">🌅 Sunrise</div>
+                        </div>
+                        <div class="time-item">
+                            <div class="time-value">18:45</div>
+                            <div class="time-label">🌇 Sunset</div>
+                        </div>
+                        <div class="time-item">
+                            <div class="time-value">06:30-09:00</div>
+                            <div class="time-label">💧 Best Watering Time</div>
+                        </div>
+                        <div class="time-item">
+                            <div class="time-value">18:00-20:00</div>
+                            <div class="time-label">🌿 Best Spraying Time</div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- 5-Day Forecast -->
+            {% if five_day %}
+                <div class="risk-box">
+                    <h3 class="section-header">
+                        <span class="emoji">🗓️</span> 5-Day Forecast (Tomorrow + 4 Days)
+                    </h3>
+                    <div class="forecast-container">
+                        {% set risk_days = [] %}
+                        {% for day in five_day %}
+                            {% set rainfall = day.rainfall or 0 %}
+                            {% set humidity = day.humidity or 0 %}
+                            {% if humidity > 85 and rainfall > 1.5 %}
+                                {% set day_risk = "High" %}
+                                {% set risk_class = "high-risk" %}
+                                {% set risk_text = "High Risk ⚠️" %}
+                                {% set _ = risk_days.append("High") %}
+                            {% elif humidity > 80 and 0.5 < rainfall <= 1.5 %}
+                                {% set day_risk = "Moderate" %}
+                                {% set risk_class = "moderate-risk" %}
+                                {% set risk_text = "Moderate Risk ⚡" %}
+                                {% set _ = risk_days.append("Moderate") %}
+                            {% else %}
+                                {% set day_risk = "Low" %}
+                                {% set risk_class = "low-risk" %}
+                                {% set risk_text = "Low Risk ✅" %}
+                                {% set _ = risk_days.append("Low") %}
+                            {% endif %}
+                        <div class="forecast-card {{ risk_class }}">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <div class="fw-bold text-dark">{{ day.date }}</div>
+                                    <div class="small text-muted">{{ day.description }}</div>
+                                </div>
+                                <div class="fs-2">{{ weather_icon(day.icon) }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="small text-muted">🌡️</div>
+                                        <div class="fw-bold">{{ day.temperature }}°C</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="small text-muted">💧</div>
+                                        <div class="fw-bold">{{ humidity }}%</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="small text-muted">🌧️</div>
+                                        <div class="fw-bold">{{ rainfall }}mm</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fw-bold text-center {% if day_risk == 'High' %}text-danger{% elif day_risk == 'Moderate' %}text-warning{% else %}text-success{% endif %}">
+                                {{ risk_text }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- 5-Day Risk Assessment -->
+                    <div class="mt-4">
+                        <h4 class="section-header">
+                            <span class="emoji">📊</span> 5-Day Forecast Risk Assessment
+                        </h4>
+                        {% set high_count = risk_days.count("High") %}
+                        {% set moderate_count = risk_days.count("Moderate") %}
+                        {% if high_count >= 2 %}
+                            <div class="alert alert-danger">
+                                <h5 class="alert-heading">🔴 High Risk Period</h5>
+                                <p class="mb-0">Multiple high-risk days detected. Take immediate preventive measures!</p>
+                            </div>
+                        {% elif high_count == 1 or moderate_count >= 2 %}
+                            <div class="alert alert-warning">
+                                <h5 class="alert-heading">🟡 Moderate Risk Period</h5>
+                                <p class="mb-0">Some risk factors present. Monitor crops closely and consider preventive measures.</p>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-success">
+                                <h5 class="alert-heading">🟢 Low Risk Period</h5>
+                                <p class="mb-0">Favorable conditions for crop health. Maintain standard agricultural practices.</p>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Risk Summary Stats -->
+                        <div class="summary-stats">
+                            <div class="stat-card danger">
+                                <div class="fs-3 fw-bold">{{ high_count }}</div>
+                                <div class="small">High Risk Days</div>
+                            </div>
+                            <div class="stat-card warning">
+                                <div class="fs-3 fw-bold">{{ moderate_count }}</div>
+                                <div class="small">Moderate Risk Days</div>
+                            </div>
+                            <div class="stat-card success">
+                                <div class="fs-3 fw-bold">{{ 5 - high_count - moderate_count }}</div>
+                                <div class="small">Low Risk Days</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Smart Analytics & Trends -->
+            {% if five_day %}
+                <div class="analytics-section">
+                    <div class="analytics-header">
+                        <h3><span class="emoji">📊</span> Smart Analytics & Trends</h3>
+                        <p>Get insights, not just data - understand patterns and make better farming decisions</p>
+                    </div>
+                    
+                    
+                    <!-- Comparison with Past Week -->
+                    <div class="comparison-grid">
+                        <div class="comparison-card">
+                            <div class="emoji">🌡️</div>
+                            <div class="metric-value">{{ forecast.temperature }}°C</div>
+                            <div class="metric-change positive">+2.3°C vs last week</div>
+                            <div class="mt-2">
+                                <span class="trend-indicator trend-up">↗️ Temperature Rising</span>
+                            </div>
+                        </div>
+                        
+                        <div class="comparison-card">
+                            <div class="emoji">💧</div>
+                            <div class="metric-value">{{ forecast.humidity }}%</div>
+                            <div class="metric-change negative">-5% vs last week</div>
+                            <div class="mt-2">
+                                <span class="trend-indicator trend-down">↘️ Humidity Decreasing</span>
+                            </div>
+                        </div>
+                        
+                        <div class="comparison-card">
+                            <div class="emoji">🌧️</div>
+                            <div class="metric-value">{{ forecast.rainfall }}mm</div>
+                            <div class="metric-change positive">+1.2mm vs last week</div>
+                            <div class="mt-2">
+                                <span class="trend-indicator trend-up">↗️ More Rainfall</span>
+                            </div>
+                        </div>
+                        
+                        <div class="comparison-card">
+                            <div class="emoji">⚠️</div>
+                            <div class="metric-value">Moderate</div>
+                            <div class="metric-change neutral">Same as last week</div>
+                            <div class="mt-2">
+                                <span class="trend-indicator trend-stable">→ Risk Level Stable</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Risk Assessment Summary -->
+            <div class="risk-summary">
+                {% if pest_risk %}
+                    <div class="risk-box">
+                        <h3 class="section-header">
+                            <span class="emoji">🐛</span> Current Day Risk Assessment
+                        </h3>
+                        <div class="alert {% if 'High' in pest_risk %}alert-danger{% elif 'Low' in pest_risk %}alert-success{% else %}alert-warning{% endif %}">
+                            <span class="emoji">{% if 'High' in pest_risk %}⚠️{% elif 'Low' in pest_risk %}✅{% else %}❓{% endif %}</span>
+                            <strong>{{ pest_risk }}</strong>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if overall_risk %}
+                    <div class="risk-box">
+                        <h3 class="section-header">
+                            <span class="emoji">📊</span> 5-Day Period Risk Assessment
+                        </h3>
+                        <div class="alert {% if 'High' in overall_risk %}alert-danger{% elif 'Low' in overall_risk %}alert-success{% else %}alert-warning{% endif %}">
+                            <span class="emoji">{% if 'High' in overall_risk %}🔴{% elif 'Low' in overall_risk %}🟢{% else %}🟡{% endif %}</span>
+                            <strong>{{ overall_risk }}</strong>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Farmer's Advisory -->
+            {% if pest_tip %}
+                <div class="risk-box">
+                    <h3 class="section-header">
+                        <span class="emoji">🌾</span> Farmer's Advisory
+                    </h3>
+                    <div class="alert alert-info">
+                        <span class="emoji">💡</span>
+                        <strong>{{ pest_tip }}</strong>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('preventive_measures') }}" class="btn btn-warning btn-lg">
+                            <span class="emoji">🛡️</span> Learn About Preventive Measures
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="text-center mt-4">
+        <img src="https://cdn.pixabay.com/photo/2017/01/20/00/30/farmer-1997282_1280.png" alt="Happy Farmer" style="max-width: 200px; border-radius: 50%;">
+        <p class="mt-2 text-success fw-bold">Happy Farming! <span class="emoji">👩‍🌾👨‍🌾</span></p>
+    </div>
+</div>
+
+{% endblock %}
+
+{% macro weather_icon(icon_code) %}
+    {% set icon_map = {
+        '01d': '☀️', '01n': '🌙',
+        '02d': '🌤️', '02n': '☁️',
+        '03d': '☁️', '03n': '☁️',
+        '04d': ' overcast clouds☁️', '04n': ' overcast clouds☁️',
+        '09d': '🌧️', '09n': '🌧️',
+        '10d': '🌦️', '10n': '🌧️',
+        '11d': '⛈️', '11n': '⛈️',
+        '13d': '❄️', '13n': '❄️',
+        '50d': '🌫️', '50n': '🌫️'
+    } %}
+    {{ icon_map.get(icon_code, '') }}
+{% endmacro %}

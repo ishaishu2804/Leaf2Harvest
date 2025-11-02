@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head><title>Pest Risk Prediction</title></head>
+<body>
+    <h2>Pest Risk Prediction</h2>
+    <form method="POST">
+        <input type="text" name="temperature" placeholder="Temperature (°C)" required><br>
+        <input type="text" name="humidity" placeholder="Humidity (%)" required><br>
+        <input type="text" name="rainfall" placeholder="Rainfall (mm)" required><br>
+        <input type="text" name="crop" placeholder="Crop (e.g., rice)" required><br>
+        <input type="submit" value="Predict">
+    </form>
+
+    {% if result %}
+        <h3>{{ result }}</h3>
+    {% endif %}
+</body>
+</html>

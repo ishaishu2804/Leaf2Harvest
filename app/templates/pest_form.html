@@ -1,0 +1,761 @@
+{% extends "base.html" %}
+
+{% block title %}🔮 AI Pest Risk Prediction{% endblock %}
+
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    
+    body {
+        background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 50%, #e3f2fd 100%);
+        font-family: 'Poppins', sans-serif;
+        min-height: 100vh;
+    }
+    
+    .main-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        text-align: center;
+        color: white;
+        margin-bottom: 3rem;
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    .hero-section h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .hero-section p {
+        font-size: 1.4rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .prediction-form {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+        margin-bottom: 3rem;
+    }
+    
+    .form-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .form-header h2 {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-header p {
+        color: #6c757d;
+        font-size: 1.1rem;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .form-group {
+        position: relative;
+    }
+    
+    .form-label {
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .form-label .emoji {
+        font-size: 1.3rem;
+        margin-right: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        background: #ffffff;
+        transform: translateY(-2px);
+    }
+    
+    .predict-btn {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 15px;
+        padding: 1rem 3rem;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .predict-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    }
+    
+    .predict-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .predict-btn:hover::before {
+        left: 100%;
+    }
+    
+    /* Prediction Results */
+    .prediction-result {
+        background: linear-gradient(135deg, #ffffff, #f8f9fa);
+        border-radius: 20px;
+        padding: 2.5rem;
+        margin: 2rem 0;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+        animation: slideIn 0.6s ease-out;
+    }
+    
+    .result-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .analysis-section {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 2rem 0;
+        border: 1px solid #dee2e6;
+    }
+    
+    .analysis-section h5 {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .analysis-section h5 i {
+        margin-right: 0.5rem;
+        color: #667eea;
+    }
+    
+    .risk-factor-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border-left: 4px solid #667eea;
+    }
+    
+    .risk-factor-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f1f3f4;
+    }
+    
+    .risk-factor-item:last-child {
+        border-bottom: none;
+    }
+    
+    .risk-factor-item i {
+        color: #ffc107;
+        margin-right: 1rem;
+        font-size: 1.1rem;
+    }
+    
+    .risk-factor-text {
+        color: #495057;
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+    
+    .comprehensive-plan {
+        background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 2rem 0;
+        border: 1px solid #bbdefb;
+    }
+    
+    .comprehensive-plan h4 {
+        color: #1976d2;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .comprehensive-plan h4 .emoji {
+        margin-right: 0.5rem;
+        font-size: 1.2rem;
+    }
+    
+    .action-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .action-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .action-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+    
+    .action-card-header {
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        color: white;
+    }
+    
+    .action-card-header i {
+        margin-right: 0.75rem;
+        font-size: 1.1rem;
+    }
+    
+    .action-card.immediate .action-card-header {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+    }
+    
+    .action-card.preventive .action-card-header {
+        background: linear-gradient(135deg, #ffc107, #e0a800);
+        color: #212529;
+    }
+    
+    .action-card.monitoring .action-card-header {
+        background: linear-gradient(135deg, #17a2b8, #138496);
+    }
+    
+    .action-card.environmental .action-card-header {
+        background: linear-gradient(135deg, #28a745, #1e7e34);
+    }
+    
+    .action-card-body {
+        padding: 1.5rem;
+    }
+    
+    .action-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    
+    .action-item:last-child {
+        border-bottom: none;
+    }
+    
+    .action-item-icon {
+        font-size: 1rem;
+        margin-right: 0.75rem;
+        margin-top: 0.2rem;
+        flex-shrink: 0;
+    }
+    
+    .action-item-text {
+        color: #495057;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+    
+    .primary-recommendation {
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        border: 1px solid #ffeaa7;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-left: 4px solid #ffc107;
+    }
+    
+    .primary-recommendation h5 {
+        color: #856404;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .primary-recommendation h5 i {
+        margin-right: 0.5rem;
+        color: #ffc107;
+    }
+    
+    .primary-recommendation p {
+        color: #856404;
+        margin: 0;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+    
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .result-header {
+        margin-bottom: 2rem;
+    }
+    
+    .result-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+    
+    .result-title {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .result-description {
+        color: #6c757d;
+        font-size: 1.2rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+    
+    .risk-level {
+        display: inline-block;
+        padding: 0.75rem 2rem;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin: 1rem 0;
+    }
+    
+    .risk-level.high {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        color: white;
+    }
+    
+    .risk-level.moderate {
+        background: linear-gradient(135deg, #ffa726, #ff9800);
+        color: white;
+    }
+    
+    .risk-level.low {
+        background: linear-gradient(135deg, #66bb6a, #4caf50);
+        color: white;
+    }
+    
+    .recommendations {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-top: 2rem;
+        text-align: left;
+    }
+    
+    .recommendations h4 {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .recommendation-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .recommendation-item:last-child {
+        border-bottom: none;
+    }
+    
+    .recommendation-icon {
+        font-size: 1.2rem;
+        margin-right: 1rem;
+        margin-top: 0.2rem;
+    }
+    
+    .recommendation-text {
+        color: #2c3e50;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+    
+    /* Input Icons */
+    .input-icon {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.2rem;
+        color: #6c757d;
+        pointer-events: none;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .hero-section h1 {
+            font-size: 2.5rem;
+        }
+        
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .prediction-form {
+            padding: 2rem;
+        }
+    }
+</style>
+
+<div class="main-container">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <h1>🔮 AI Pest Risk Prediction</h1>
+        <p>Harness the power of machine learning to predict pest risks before they strike your crops</p>
+    </div>
+
+    <!-- Prediction Form -->
+    <div class="prediction-form">
+        <div class="form-header">
+            <h2>🌾 Enter Environmental Conditions</h2>
+            <p>Provide accurate data for the most precise predictions</p>
+        </div>
+        
+        <form method="POST">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="temperature" class="form-label">
+                        <span class="emoji">🌡️</span> Temperature (°C)
+                    </label>
+                    <input type="number" step="0.1" class="form-control" id="temperature" name="temperature" 
+                           placeholder="Enter temperature" required>
+                    <span class="input-icon">°C</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="humidity" class="form-label">
+                        <span class="emoji">💧</span> Humidity (%)
+                    </label>
+                    <input type="number" step="0.1" class="form-control" id="humidity" name="humidity" 
+                           placeholder="Enter humidity" required>
+                    <span class="input-icon">%</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="rainfall" class="form-label">
+                        <span class="emoji">🌧️</span> Rainfall (mm)
+                    </label>
+                    <input type="number" step="0.1" class="form-control" id="rainfall" name="rainfall" 
+                           placeholder="Enter rainfall" required>
+                    <span class="input-icon">mm</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="crop_type" class="form-label">
+                        <span class="emoji">🌾</span> Crop Type
+                    </label>
+                    <select class="form-select" id="crop_type" name="crop_type">
+                        <option value="rice">🌾 Rice</option>
+                        <option value="wheat">🌾 Wheat</option>
+                        <option value="maize">🌽 Maize</option>
+                        <option value="sugarcane">🎋 Sugarcane</option>
+                        <option value="cotton">🌿 Cotton</option>
+                        <option value="vegetables">🥬 Vegetables</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn predict-btn">
+                    <span class="me-2">🔮</span>Predict Pest Risk
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Prediction Results -->
+    {% if prediction %}
+        <div class="prediction-result">
+            <div class="result-header">
+                <div class="result-icon">
+                    {% if risk == 'high' %}
+                        🚨
+                    {% elif risk == 'medium' %}
+                        ⚠️
+                    {% else %}
+                        ✅
+                    {% endif %}
+                </div>
+                <h3 class="result-title">Enhanced Pest Risk Analysis</h3>
+                <p class="result-description">Based on your environmental conditions for <strong>{{ crop }}</strong>, here's the comprehensive pest risk assessment:</p>
+            </div>
+            
+            <!-- Input Summary -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h6 class="text-primary">🌡️ Temperature</h6>
+                        <span class="badge bg-primary fs-6">{{ temp }}°C</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h6 class="text-info">💧 Humidity</h6>
+                        <span class="badge bg-info fs-6">{{ humidity }}%</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h6 class="text-success">🌧️ Rainfall</h6>
+                        <span class="badge bg-success fs-6">{{ rainfall }}mm</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h6 class="text-warning">🌾 Crop</h6>
+                        <span class="badge bg-warning fs-6">{{ crop }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Risk Level and Confidence -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="risk-level {% if risk == 'high' %}high{% elif risk == 'medium' %}moderate{% else %}low{% endif %}">
+                        {{ prediction }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-center">
+                        <h6 class="text-secondary">🎯 Confidence Level</h6>
+                        <span class="badge bg-secondary fs-6">{{ confidence }}%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Detailed Analysis -->
+            {% if detailed_analysis %}
+            <div class="analysis-section">
+                <h5>
+                    <i class="fas fa-chart-line"></i>Risk Analysis Breakdown
+                </h5>
+                
+                <!-- Risk Score and Pests -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="risk-factor-card">
+                            <h6 class="text-primary mb-2">Risk Score</h6>
+                            <h3 class="text-primary mb-1">{{ detailed_analysis.risk_score }}</h3>
+                            <small class="text-muted">Out of 3.0 maximum</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="risk-factor-card">
+                            <h6 class="text-info mb-2">Crop-Specific Pests</h6>
+                            <div class="d-flex flex-wrap gap-1">
+                                {% for pest in detailed_analysis.crop_specific_pests %}
+                                <span class="badge bg-info">{{ pest }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Risk Factors -->
+                <div class="risk-factor-card">
+                    <h6 class="text-secondary mb-3">Risk Factors Identified:</h6>
+                    {% for factor in detailed_analysis.factors %}
+                    <div class="risk-factor-item">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span class="risk-factor-text">{{ factor }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Comprehensive Recommendations -->
+            <div class="comprehensive-plan">
+                <h4>
+                    <span class="emoji">💡</span>Comprehensive Action Plan
+                </h4>
+                
+                {% if tip %}
+                    <div class="primary-recommendation">
+                        <h5>
+                            <i class="fas fa-bullhorn"></i>Primary Recommendation
+                        </h5>
+                        <p>{{ tip }}</p>
+                    </div>
+                {% endif %}
+                
+                {% if all_tips %}
+                <div class="action-cards">
+                    <!-- Immediate Actions -->
+                    {% if all_tips.immediate %}
+                    <div class="action-card immediate">
+                        <div class="action-card-header">
+                            <i class="fas fa-clock"></i>Immediate Actions
+                        </div>
+                        <div class="action-card-body">
+                            {% for action in all_tips.immediate %}
+                            <div class="action-item">
+                                <span class="action-item-icon">🔴</span>
+                                <span class="action-item-text">{{ action }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Preventive Measures -->
+                    {% if all_tips.preventive %}
+                    <div class="action-card preventive">
+                        <div class="action-card-header">
+                            <i class="fas fa-shield-alt"></i>Preventive Measures
+                        </div>
+                        <div class="action-card-body">
+                            {% for measure in all_tips.preventive %}
+                            <div class="action-item">
+                                <span class="action-item-icon">🟡</span>
+                                <span class="action-item-text">{{ measure }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Monitoring -->
+                    {% if all_tips.monitoring %}
+                    <div class="action-card monitoring">
+                        <div class="action-card-header">
+                            <i class="fas fa-search"></i>Monitoring Schedule
+                        </div>
+                        <div class="action-card-body">
+                            {% for monitor in all_tips.monitoring %}
+                            <div class="action-item">
+                                <span class="action-item-icon">🔍</span>
+                                <span class="action-item-text">{{ monitor }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Environmental Management -->
+                    {% if all_tips.environmental %}
+                    <div class="action-card environmental">
+                        <div class="action-card-header">
+                            <i class="fas fa-leaf"></i>Environmental Management
+                        </div>
+                        <div class="action-card-body">
+                            {% for env in all_tips.environmental %}
+                            <div class="action-item">
+                                <span class="action-item-icon">🌱</span>
+                                <span class="action-item-text">{{ env }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Navigation -->
+    <div class="text-center mt-5">
+        <a href="{{ url_for('weather') }}" class="btn btn-success btn-lg me-3">
+            <i class="fas fa-cloud-sun me-2"></i>Weather Dashboard
+        </a>
+        <a href="{{ url_for('preventive_measures') }}" class="btn btn-warning btn-lg me-3">
+            <i class="fas fa-shield-alt me-2"></i>Preventive Measures
+        </a>
+        <a href="{{ url_for('health_dashboard') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-chart-line me-2"></i>Health Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

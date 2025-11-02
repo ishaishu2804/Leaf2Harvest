@@ -1,0 +1,655 @@
+{% extends "base.html" %}
+
+{% block title %}AI Crop Disease Diagnosis{% endblock %}
+
+{% block extra_css %}
+<style>
+    .diagnosis-hero {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 60px 0;
+        margin-bottom: 40px;
+    }
+    
+    .upload-area {
+        border: 3px dashed #28a745;
+        padding: 50px 30px;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #f8fff8 0%, #e8f5e9 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .upload-area::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(40, 167, 69, 0.1), transparent);
+        transition: left 0.5s;
+    }
+    
+    .upload-area:hover::before {
+        left: 100%;
+    }
+    
+    .upload-area:hover {
+        background: linear-gradient(135deg, #e8f5e9 0%, #d4edda 100%);
+        border-color: #20c997;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.15);
+    }
+    
+    .upload-area.dragover {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        border-color: #20c997;
+        transform: scale(1.02);
+    }
+    
+    .upload-area input[type="file"] {
+        display: none;
+    }
+    
+    .upload-icon {
+        font-size: 4rem;
+        color: #28a745;
+        margin-bottom: 20px;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .image-preview {
+        margin-top: 30px;
+        text-align: center;
+    }
+    
+    .image-preview img {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .image-preview img:hover {
+        transform: scale(1.02);
+    }
+    
+    .analyze-btn {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        padding: 15px 40px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .analyze-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
+    }
+    
+    .analyze-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .feature-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+    
+    .feature-card .card-header {
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        border: none;
+        padding: 20px;
+    }
+    
+    .feature-card.success .card-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+    
+    .list-group-item {
+        border: none;
+        padding: 15px 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+        transform: translateX(5px);
+    }
+    
+    .loading-spinner {
+        display: none;
+        margin: 20px auto;
+    }
+    
+    .progress-container {
+        display: none;
+        margin: 20px 0;
+    }
+    
+    .progress-bar {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border-radius: 10px;
+    }
+    
+    .file-info {
+        background: #e8f5e9;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+        display: none;
+    }
+    
+    .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+    
+    .step {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e9ecef;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 10px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .step.active {
+        background: #28a745;
+        color: white;
+    }
+    
+    .step.completed {
+        background: #20c997;
+        color: white;
+    }
+    
+    .step-line {
+        width: 50px;
+        height: 2px;
+        background: #e9ecef;
+        margin-top: 19px;
+    }
+    
+    .step-line.completed {
+        background: #20c997;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="diagnosis-hero">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold mb-3">
+            <i class="fas fa-microscope me-3"></i>AI Crop Disease Diagnosis
+        </h1>
+        <p class="lead mb-0">AI-powered plant disease detection for healthier crops</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Usage Stats Banner -->
+            {% if usage_stats %}
+            <div class="usage-banner mb-4">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card border-primary">
+                            <div class="card-body py-3">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <h6 class="mb-1 text-primary">
+                                            <i class="fas fa-chart-line me-2"></i>Today's Usage
+                                        </h6>
+                                        <div class="usage-stats">
+                                            <span class="badge bg-success me-2">OpenAI: {{ usage_stats.openai_today }}/{{ usage_stats.openai_limit }}</span>
+                                            <span class="badge bg-info me-2">Local: {{ usage_stats.local_model_today }}</span>
+                                            <span class="badge bg-warning">Fallback: {{ usage_stats.fallback_today }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 text-end">
+                                        {% if usage_stats.subscription_type == 'free' %}
+                                            <small class="text-muted">Free Plan</small>
+                                            <a href="{{ url_for('upgrade_premium') }}" class="btn btn-sm btn-primary ms-2">
+                                                <i class="fas fa-crown me-1"></i>Upgrade to Premium
+                                            </a>
+                                        {% else %}
+                                            <small class="text-success">
+                                                <i class="fas fa-crown me-1"></i>Premium Plan
+                                            </small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-success">
+                            <div class="card-body py-3 text-center">
+                                <h6 class="mb-1 text-success">
+                                    <i class="fas fa-bolt me-2"></i>AI Power
+                                </h6>
+                                {% if usage_stats.subscription_type == 'premium' %}
+                                    <span class="badge bg-success fs-6">Unlimited</span>
+                                {% else %}
+                                    <span class="badge bg-warning fs-6">{{ 5 - usage_stats.openai_today }} Left</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step1">1</div>
+                <div class="step-line"></div>
+                <div class="step" id="step2">2</div>
+                <div class="step-line"></div>
+                <div class="step" id="step3">3</div>
+            </div>
+            
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>{{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form method="POST" enctype="multipart/form-data" id="diagnosisForm" class="needs-validation" novalidate>
+                        <div class="mb-5">
+                            <label for="image" class="form-label visually-hidden">Upload Crop Image</label>
+                            <div class="upload-area" id="uploadArea">
+                                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                <h4 class="text-success mb-3">Upload Your Plant Image</h4>
+                                <p class="text-muted mb-3">Drag and drop your image here or click to select a file</p>
+                                <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+                                <div class="file-info" id="fileInfo">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-file-image text-success me-2"></i>
+                                        <span id="fileName"></span>
+                                        <span class="ms-auto text-muted" id="fileSize"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-text text-center mt-3">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Supported formats: JPG, JPEG, PNG. Max size: 16MB
+                            </div>
+                            <div class="image-preview" id="imagePreview"></div>
+                        </div>
+                        
+                        <!-- Crop Selection -->
+                        <div class="mb-4">
+                            <div class="card border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-seedling me-2"></i>Select Crop Type
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <label for="crop_type" class="form-label fw-semibold">What type of crop is this?</label>
+                                            <select class="form-select form-select-lg" id="crop_type" name="crop_type" required>
+                                                <option value="">Select crop type...</option>
+                                                <optgroup label="🌾 Grains & Cereals">
+                                                    <option value="wheat">Wheat</option>
+                                                    <option value="rice">Rice</option>
+                                                    <option value="corn">Corn/Maize</option>
+                                                    <option value="barley">Barley</option>
+                                                    <option value="oats">Oats</option>
+                                                </optgroup>
+                                                <optgroup label="🥬 Vegetables">
+                                                    <option value="tomato">Tomato</option>
+                                                    <option value="potato">Potato</option>
+                                                    <option value="pepper">Pepper</option>
+                                                    <option value="cucumber">Cucumber</option>
+                                                    <option value="lettuce">Lettuce</option>
+                                                    <option value="cabbage">Cabbage</option>
+                                                    <option value="carrot">Carrot</option>
+                                                    <option value="onion">Onion</option>
+                                                </optgroup>
+                                                <optgroup label="🌳 Fruits & Trees">
+                                                    <option value="apple">Apple</option>
+                                                    <option value="citrus">Citrus (Orange, Lemon)</option>
+                                                    <option value="grape">Grape</option>
+                                                    <option value="strawberry">Strawberry</option>
+                                                    <option value="banana">Banana</option>
+                                                </optgroup>
+                                                <optgroup label="🌿 Herbs & Spices">
+                                                    <option value="basil">Basil</option>
+                                                    <option value="mint">Mint</option>
+                                                    <option value="oregano">Oregano</option>
+                                                    <option value="rosemary">Rosemary</option>
+                                                </optgroup>
+                                                <optgroup label="🌻 Other Crops">
+                                                    <option value="cotton">Cotton</option>
+                                                    <option value="sugarcane">Sugarcane</option>
+                                                    <option value="soybean">Soybean</option>
+                                                    <option value="sunflower">Sunflower</option>
+                                                    <option value="other">Other/Unknown</option>
+                                                </optgroup>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="text-center">
+                                                <i class="fas fa-question-circle fa-3x text-info mb-3"></i>
+                                                <p class="text-muted small">
+                                                    <strong>Why select crop type?</strong><br>
+                                                    Different crops have different diseases. This helps us provide more accurate diagnosis and treatment recommendations.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Progress Bar -->
+                        <div class="progress-container" id="progressContainer">
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" style="width: 0%" id="progressBar"></div>
+                            </div>
+                            <p class="text-center mt-2 text-muted" id="progressText">Analyzing image...</p>
+                        </div>
+                        
+                        <!-- Loading Spinner -->
+                        <div class="loading-spinner text-center" id="loadingSpinner">
+                            <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-3 text-muted">Processing your image...</p>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn analyze-btn text-white" id="analyzeBtn">
+                                <i class="fas fa-microscope me-2"></i>Analyze Image
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr class="my-5">
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card feature-card h-100">
+                                <div class="card-header text-white">
+                                    <h4 class="card-title h5 mb-0">
+                                        <i class="fas fa-cogs me-2"></i>How it works:
+                                    </h4>
+                                </div>
+                                <div class="card-body">
+                                    <ol class="list-group list-group-numbered">
+                                        <li class="list-group-item">
+                                            <strong>Capture:</strong> Take a clear photo of the affected plant part
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>Upload:</strong> Upload the image using the area above
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>Analyze:</strong> Our AI analyzes the image and identifies diseases
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>Results:</strong> Get detailed diagnosis and treatment recommendations
+                                        </li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card feature-card success h-100">
+                                <div class="card-header text-white">
+                                    <h4 class="card-title h5 mb-0">
+                                        <i class="fas fa-lightbulb me-2"></i>Tips for best results:
+                                    </h4>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-group">
+                                        <li class="list-group-item">
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            Ensure good lighting when taking the photo
+                                        </li>
+                                        <li class="list-group-item">
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            Focus on the affected area with clear details
+                                        </li>
+                                        <li class="list-group-item">
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            Include both healthy and affected parts if possible
+                                        </li>
+                                        <li class="list-group-item">
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            Avoid blurry or low-resolution images
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('image');
+        const imagePreview = document.getElementById('imagePreview');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const diagnosisForm = document.getElementById('diagnosisForm');
+        
+        // Step indicators
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+
+        // Click to upload
+        uploadArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        // File input change
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFileSelect(file);
+            }
+        });
+
+        // Drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => {
+                uploadArea.classList.add('dragover');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => {
+                uploadArea.classList.remove('dragover');
+            }, false);
+        });
+
+        uploadArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect(files[0]);
+            }
+        }
+
+        function handleFileSelect(file) {
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please select a valid image file (JPG, JPEG, PNG)');
+                return;
+            }
+
+            // Validate file size (16MB)
+            const maxSize = 16 * 1024 * 1024;
+            if (file.size > maxSize) {
+                alert('File size must be less than 16MB');
+                return;
+            }
+
+            // Show file info
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.style.display = 'block';
+
+            // Show image preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.innerHTML = `
+                    <div class="text-center">
+                        <img src="${e.target.result}" alt="Image Preview" class="img-fluid rounded shadow">
+                        <p class="mt-2 text-muted">Preview of your uploaded image</p>
+                    </div>
+                `;
+                
+                // Update step indicator
+                step1.classList.remove('active');
+                step1.classList.add('completed');
+                step2.classList.add('active');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Form submission with progress
+        diagnosisForm.addEventListener('submit', function(e) {
+            if (!fileInput.files[0]) {
+                e.preventDefault();
+                alert('Please select an image file');
+                return;
+            }
+            
+            const cropType = document.getElementById('crop_type').value;
+            if (!cropType) {
+                e.preventDefault();
+                alert('Please select the crop type for more accurate diagnosis');
+                return;
+            }
+
+            // Show loading state
+            analyzeBtn.disabled = true;
+            analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Analyzing...';
+            progressContainer.style.display = 'block';
+            loadingSpinner.style.display = 'block';
+            
+            // Update step indicator
+            step2.classList.remove('active');
+            step2.classList.add('completed');
+            step3.classList.add('active');
+
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressBar.style.width = progress + '%';
+                
+                if (progress < 30) {
+                    progressText.textContent = 'Uploading image...';
+                } else if (progress < 60) {
+                    progressText.textContent = 'Processing image...';
+                } else if (progress < 90) {
+                    progressText.textContent = 'Analyzing disease patterns...';
+                } else {
+                    progressText.textContent = 'Generating results...';
+                }
+            }, 200);
+
+            // Complete progress when form actually submits
+            setTimeout(() => {
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                progressText.textContent = 'Analysis complete!';
+            }, 2000);
+        });
+
+        // Add some interactive effects
+        uploadArea.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+        });
+
+        uploadArea.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+</script>
+{% endblock %}

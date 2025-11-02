@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environments
+.env
+.venv/
+.venv2/
+
+# Data / Cache
+*.csv
+*.pkl
+*.h5
+*.zip
+*.tar
+*.gz
+
+# System
+.DS_Store
+Thumbs.db

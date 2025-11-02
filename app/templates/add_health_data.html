@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block title %}Add Health Monitoring Data{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-plus-circle text-primary"></i> Add Health Monitoring Data
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Data Type Selection -->
+                    <div class="mb-4">
+                        <label class="form-label">Select Data Type</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="dataType" id="weather" value="weather" checked>
+                            <label class="btn btn-outline-primary" for="weather">
+                                <i class="fas fa-cloud-rain"></i> Weather Data
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="dataType" id="pest" value="pest_risk">
+                            <label class="btn btn-outline-warning" for="pest">
+                                <i class="fas fa-bug"></i> Pest Risk
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="dataType" id="disease" value="disease">
+                            <label class="btn btn-outline-danger" for="disease">
+                                <i class="fas fa-virus"></i> Disease Data
+                            </label>
+                        </div>
+                    </div>
+
+                    <form method="POST" id="healthDataForm" action="{{ url_for('add_health_data') }}">
+                        <input type="hidden" name="data_type" id="data_type" value="weather">
+                        
+                        <!-- Weather Data Form -->
+                        <div id="weatherForm" class="data-form">
+                            <h5 class="mb-3"><i class="fas fa-cloud-rain text-primary"></i> Weather Data</h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="location" class="form-label">Location</label>
+                                    <input type="text" class="form-control" id="location" name="location" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="temperature" class="form-label">Temperature (°C)</label>
+                                    <input type="number" class="form-control" id="temperature" name="temperature" step="0.1" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="humidity" class="form-label">Humidity (%)</label>
+                                    <input type="number" class="form-control" id="humidity" name="humidity" step="0.1" min="0" max="100" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="rainfall" class="form-label">Rainfall (mm)</label>
+                                    <input type="number" class="form-control" id="rainfall" name="rainfall" step="0.1" min="0" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="wind_speed" class="form-label">Wind Speed (km/h)</label>
+                                    <input type="number" class="form-control" id="wind_speed" name="wind_speed" step="0.1" min="0">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="pressure" class="form-label">Pressure (hPa)</label>
+                                    <input type="number" class="form-control" id="pressure" name="pressure" step="0.1" min="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pest Risk Form -->
+                        <div id="pestForm" class="data-form" style="display: none;">
+                            <h5 class="mb-3"><i class="fas fa-bug text-warning"></i> Pest Risk Assessment</h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="pest_crop_type" class="form-label">Crop Type</label>
+                                    <select class="form-select" id="pest_crop_type" name="crop_type" required>
+                                        <option value="">Select Crop</option>
+                                        <option value="wheat">Wheat</option>
+                                        <option value="rice">Rice</option>
+                                        <option value="maize">Maize</option>
+                                        <option value="cotton">Cotton</option>
+                                        <option value="sugarcane">Sugarcane</option>
+                                        <option value="tomato">Tomato</option>
+                                        <option value="potato">Potato</option>
+                                        <option value="onion">Onion</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="risk_level" class="form-label">Risk Level</label>
+                                    <select class="form-select" id="risk_level" name="risk_level" required>
+                                        <option value="">Select Risk Level</option>
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">High</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="risk_score" class="form-label">Risk Score (0-1)</label>
+                                    <input type="number" class="form-control" id="risk_score" name="risk_score" step="0.01" min="0" max="1" required>
+                                    <div class="form-text">0 = No risk, 1 = Maximum risk</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="pest_temperature" class="form-label">Temperature (°C)</label>
+                                    <input type="number" class="form-control" id="pest_temperature" name="pest_temperature" step="0.1" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="pest_humidity" class="form-label">Humidity (%)</label>
+                                    <input type="number" class="form-control" id="pest_humidity" name="pest_humidity" step="0.1" min="0" max="100" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="pest_rainfall" class="form-label">Rainfall (mm)</label>
+                                    <input type="number" class="form-control" id="pest_rainfall" name="pest_rainfall" step="0.1" min="0" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Disease Data Form -->
+                        <div id="diseaseForm" class="data-form" style="display: none;">
+                            <h5 class="mb-3"><i class="fas fa-virus text-danger"></i> Disease Assessment</h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="disease_crop_type" class="form-label">Crop Type</label>
+                                    <select class="form-select" id="disease_crop_type" name="crop_type" required>
+                                        <option value="">Select Crop</option>
+                                        <option value="wheat">Wheat</option>
+                                        <option value="rice">Rice</option>
+                                        <option value="maize">Maize</option>
+                                        <option value="cotton">Cotton</option>
+                                        <option value="sugarcane">Sugarcane</option>
+                                        <option value="tomato">Tomato</option>
+                                        <option value="potato">Potato</option>
+                                        <option value="onion">Onion</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="disease_name" class="form-label">Disease Name</label>
+                                    <input type="text" class="form-control" id="disease_name" name="disease_name" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="severity" class="form-label">Severity</label>
+                                    <select class="form-select" id="severity" name="severity" required>
+                                        <option value="">Select Severity</option>
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">High</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="disease_temperature" class="form-label">Temperature (°C)</label>
+                                    <input type="number" class="form-control" id="disease_temperature" name="disease_temperature" step="0.1" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="disease_humidity" class="form-label">Humidity (%)</label>
+                                    <input type="number" class="form-control" id="disease_humidity" name="disease_humidity" step="0.1" min="0" max="100" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="disease_rainfall" class="form-label">Rainfall (mm)</label>
+                                    <input type="number" class="form-control" id="disease_rainfall" name="disease_rainfall" step="0.1" min="0" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('health_dashboard') }}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </a>
+                            <button type="button" class="btn btn-primary" onclick="handleSave()">
+                                <i class="fas fa-save"></i> Save Health Data
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dataTypeRadios = document.querySelectorAll('input[name="dataType"]');
+    const dataTypeInput = document.getElementById('data_type');
+    const forms = {
+        weather: document.getElementById('weatherForm'),
+        pest_risk: document.getElementById('pestForm'),
+        disease: document.getElementById('diseaseForm')
+    };
+
+    function showForm(type) {
+        // Hide all forms
+        Object.values(forms).forEach(form => {
+            form.style.display = 'none';
+        });
+        
+        // Show selected form
+        if (forms[type]) {
+            forms[type].style.display = 'block';
+        }
+        
+        // Update hidden input
+        dataTypeInput.value = type;
+    }
+
+    // Add event listeners to radio buttons
+    dataTypeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                showForm(this.value);
+            }
+        });
+    });
+
+    // Initialize with weather form
+    showForm('weather');
+});
+
+// Handle save button click
+function handleSave() {
+    const dataType = document.getElementById('data_type').value;
+    const dataTypeNames = {
+        'weather': 'Weather Data',
+        'pest_risk': 'Pest Risk Data',
+        'disease': 'Disease Data'
+    };
+    
+    const dataTypeName = dataTypeNames[dataType] || 'Health Data';
+    
+    if (confirm(`Are you sure you want to save this ${dataTypeName}?`)) {
+        // Show loading state
+        const submitBtn = document.querySelector('button[onclick="handleSave()"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        submitBtn.disabled = true;
+        
+        // Submit the form
+        document.getElementById('healthDataForm').submit();
+        
+        // Re-enable button after 5 seconds (in case of error)
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 5000);
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,1147 @@
+{% extends "base.html" %}
+
+{% block title %} LeafToHarvest - Smart Farming Solutions{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        overflow-x: hidden;
+    }
+    
+    .hero-section {
+  background: linear-gradient(145deg, #4caf50, #81c784);
+  border-radius: 20px;
+  text-align: center;
+  padding: 60px 40px;
+  margin: 50px auto;
+  max-width: 1100px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+/* make the green area wider and not full height */
+.hero-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('/static/images/pattern.png'); /* optional texture overlay */
+  opacity: 0.08;
+}
+
+/* headline style */
+.hero-section h1 {
+  font-weight: 700;
+  font-size: 2.5rem;
+  letter-spacing: 1px;
+  margin-bottom: 15px;
+}
+
+/* subtext */
+.hero-section p {
+  font-size: 1.1rem;
+  color: #f1f1f1;
+  max-width: 700px;
+  margin: 0 auto 30px;
+}
+
+/* buttons */
+.hero-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+}
+
+.hero-buttons a {
+  border-radius: 10px;
+  padding: 10px 25px;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.hero-buttons a:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* responsive tweaks */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 40px 20px;
+    margin: 30px 10px;
+  }
+
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+}
+
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 3;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        height: 100%;
+        padding: 1rem 0;
+        width: 100%;
+    }
+    
+    .brand-title {
+        margin: 2rem 0 3rem 0;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+    
+    .main-brand {
+        font-size: 4.5rem;
+        font-weight: 900;
+        margin: 0;
+        line-height: 1;
+        letter-spacing: 0.1em;
+        text-align: center;
+        width: 100%;
+        color: #ffffff;
+        text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+        filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6));
+        position: relative;
+    }
+    
+    .hero-title {
+        font-size: 2.2rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        color: #ffffff;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        line-height: 1.3;
+        max-width: 800px;
+        letter-spacing: -0.01em;
+        text-align: center;
+        opacity: 0.95;
+    }
+    
+    .ai-highlight {
+        color: #ffd700;
+        font-weight: 800;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+    
+    .hero-subtitle {
+        font-size: 1.3rem;
+        font-weight: 500;
+        margin-bottom: 3rem;
+        opacity: 0.9;
+        line-height: 1.6;
+        max-width: 700px;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        color: rgba(255,255,255,0.9);
+        text-align: center;
+    }
+    
+    .hero-buttons {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 3rem;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn-hero-primary {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,249,250,0.9));
+        color: #2e7d32;
+        border: none;
+        border-radius: 50px;
+        padding: 20px 45px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.1);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-hero-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.6s;
+    }
+    
+    .btn-hero-primary:hover::before {
+        left: 100%;
+    }
+    
+    .btn-hero-primary:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.2);
+        color: #1b5e20;
+        text-decoration: none;
+    }
+    
+    .btn-hero-secondary {
+        background: rgba(255,255,255,0.1);
+        color: white;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 50px;
+        padding: 18px 45px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-hero-secondary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+    
+    .btn-hero-secondary:hover::before {
+        opacity: 1;
+    }
+    
+    .btn-hero-secondary:hover {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        transform: translateY(-5px) scale(1.02);
+        border-color: rgba(255,255,255,0.5);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2), 0 0 20px rgba(255,255,255,0.1);
+        text-decoration: none;
+    }
+    
+    .hero-features {
+        display: flex;
+        gap: 1.8rem;
+        flex-wrap: wrap;
+        margin-top: 0;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .feature-highlight {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: rgba(255,255,255,0.12);
+        padding: 12px 22px;
+        border-radius: 30px;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.25);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    
+    .feature-highlight::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+    
+    .feature-highlight:hover::before {
+        opacity: 1;
+    }
+    
+    .feature-highlight:hover {
+        background: rgba(255,255,255,0.2);
+        transform: translateY(-4px) scale(1.05);
+        border-color: rgba(255,255,255,0.4);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15), 0 0 20px rgba(255,255,255,0.1);
+    }
+    
+    .feature-highlight i {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+    
+    .feature-highlight span {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    
+    .hero-visual {
+        position: relative;
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        padding: 3rem 0;
+        text-align: center;
+    }
+    
+    .tech-icons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        max-width: 500px;
+        width: 100%;
+    }
+    
+    .tech-icon {
+        background: rgba(255,255,255,0.08);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.2);
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        min-height: 140px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    
+    .tech-icon::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+    
+    .tech-icon:hover::before {
+        opacity: 1;
+    }
+    
+    .tech-icon:hover {
+        transform: translateY(-12px) scale(1.05);
+        background: rgba(255,255,255,0.15);
+        border-color: rgba(255,255,255,0.35);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2), 0 0 30px rgba(255,255,255,0.1);
+    }
+    
+    .tech-icon i {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        display: block;
+        color: #ffffff;
+        text-shadow: 0 0 20px rgba(255,255,255,0.5);
+        transition: all 0.4s ease;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .tech-icon:hover i {
+        transform: scale(1.1);
+        color: #ffffff;
+        text-shadow: 0 0 30px rgba(255,255,255,0.5);
+    }
+    
+    .tech-icon span {
+        font-weight: 600;
+        font-size: 0.9rem;
+        opacity: 0.95;
+        line-height: 1.3;
+        color: rgba(255,255,255,0.9);
+        position: relative;
+        z-index: 2;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    
+    .floating-elements {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        z-index: 1;
+    }
+    
+    .floating-icon {
+        position: absolute;
+        font-size: 2rem;
+        color: rgba(255,255,255,0.1);
+        animation: floatIcon 6s ease-in-out infinite;
+    }
+    
+    .floating-icon:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+    .floating-icon:nth-child(2) { top: 60%; right: 15%; animation-delay: 2s; }
+    .floating-icon:nth-child(3) { bottom: 30%; left: 20%; animation-delay: 4s; }
+    .floating-icon:nth-child(4) { top: 40%; right: 30%; animation-delay: 1s; }
+    .floating-icon:nth-child(5) { bottom: 60%; left: 60%; animation-delay: 3s; }
+    
+    @keyframes floatIcon {
+        0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.1; }
+        50% { transform: translateY(-20px) rotate(180deg); opacity: 0.3; }
+    }
+    
+    @media (max-width: 768px) {
+        .hero-section {
+            min-height: auto;
+            padding: 3rem 0;
+        }
+        
+        .hero-content {
+            text-align: center;
+            padding: 1rem 0;
+            align-items: center;
+        }
+        
+        .brand-title {
+            margin: 1.5rem 0 2rem 0;
+        }
+        
+        .main-brand {
+            font-size: 3.5rem;
+            letter-spacing: 0.05em;
+            text-align: center;
+        }
+        
+        .hero-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .hero-buttons {
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .btn-hero-primary,
+        .btn-hero-secondary {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+        
+        .hero-features {
+            justify-content: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+        }
+        
+        .feature-highlight {
+            font-size: 0.9rem;
+            padding: 10px 18px;
+        }
+        
+        .tech-icons {
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            max-width: 100%;
+        }
+        
+        .tech-icon {
+            padding: 1.5rem;
+            min-height: 120px;
+        }
+        
+        .tech-icon i {
+            font-size: 2rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .tech-icon span {
+            font-size: 0.85rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .main-brand {
+            font-size: 2.8rem;
+            letter-spacing: 0.03em;
+            text-align: center;
+        }
+        
+        .hero-title {
+            font-size: 1.5rem;
+        }
+        
+        .tech-icons {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .hero-features {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="floating-elements">
+        <i class="fas fa-seedling floating-icon"></i>
+        <i class="fas fa-leaf floating-icon"></i>
+        <i class="fas fa-tractor floating-icon"></i>
+        <i class="fas fa-cloud-sun floating-icon"></i>
+        <i class="fas fa-chart-line floating-icon"></i>
+    </div>
+    
+    <div class="container">
+        <!-- Centered Brand Title -->
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="brand-title">
+                    <h1 style="
+  font-size: 72px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255,255,255,0.8),
+               0 0 20px rgba(144,238,144,0.6),
+               0 0 40px rgba(0,128,0,0.4);
+  letter-spacing: 3px;
+  animation: float 3s ease-in-out infinite, glowPulse 2s ease-in-out infinite alternate;
+">
+   LEAF2HARVEST 
+</h1>
+
+<style>
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes glowPulse {
+  from {
+    text-shadow: 0 0 8px rgba(255,255,255,0.6),
+                 0 0 20px rgba(144,238,144,0.5),
+                 0 0 30px rgba(0,128,0,0.3);
+  }
+  to {
+    text-shadow: 0 0 15px rgba(255,255,255,0.9),
+                 0 0 35px rgba(144,238,144,0.8),
+                 0 0 60px rgba(0,128,0,0.6);
+  }
+}
+</style>
+
+                </div>
+            </div>
+        </div>
+        
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h2 class="hero-title">
+                        Transform Your Farming with 
+                        <span class="ai-highlight">AI-Powered</span> 
+                        Solutions
+                    </h2>
+                    <p class="hero-subtitle">
+                        Join the future of agriculture with LeafToHarvest - your comprehensive platform for smart farming, crop management, and direct farmer-consumer marketplace.
+                    </p>
+                    
+                {% if not current_user.is_authenticated %}
+                    <div class="hero-buttons">
+                        <a href="{{ url_for('register') }}" class="btn-hero-primary">
+                            <i class="fas fa-rocket"></i> Start Your Journey
+                        </a>
+                        <a href="{{ url_for('login') }}" class="btn-hero-secondary">
+                            <i class="fas fa-sign-in-alt"></i> Sign In
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="hero-buttons">
+                        <a href="{{ url_for('dashboard') }}" class="btn-hero-primary">
+                            <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                        </a>
+                        <a href="{{ url_for('marketplace') }}" class="btn-hero-secondary">
+                            <i class="fas fa-store"></i> Explore Marketplace
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="hero-features">
+                        <div class="feature-highlight">
+                            <i class="fas fa-rocket"></i>
+                            <span>Revolutionary AI Technology</span>
+                        </div>
+                        <div class="feature-highlight">
+                            <i class="fas fa-leaf"></i>
+                            <span>Direct Farmer Connection</span>
+                        </div>
+                        <div class="feature-highlight">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Smart Analytics</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-visual">
+                    <div class="tech-icons">
+                        <div class="tech-icon">
+                            <i class="fas fa-brain"></i>
+                            <span>AI-Powered</span>
+                        </div>
+                        <div class="tech-icon">
+                            <i class="fas fa-microscope"></i>
+                            <span>Disease Detection</span>
+                        </div>
+                        <div class="tech-icon">
+                            <i class="fas fa-cloud-sun"></i>
+                            <span>Weather Intelligence</span>
+                        </div>
+                        <div class="tech-icon">
+                            <i class="fas fa-seedling"></i>
+                            <span>Crop Optimization</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-4 fw-bold text-dark mb-3">Powerful Features for Modern Farming</h2>
+            <p class="lead text-muted">Discover how our AI-powered tools can revolutionize your agricultural practices</p>
+        </div>
+        
+    <div class="row g-4">
+        <!-- Crop Recommendation -->
+        <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <h4 class="feature-title">Smart Crop Recommendation</h4>
+                    <p class="feature-description" style="color: #000;">Get AI-powered crop recommendations based on soil conditions, weather patterns, and market demand.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Advanced soil analysis</li>
+                        <li><i class="fas fa-check"></i> Weather-based insights</li>
+                        <li><i class="fas fa-check"></i> Market trend analysis</li>
+                    </ul>
+                    <a href="{{ url_for('recommend') }}" class="feature-btn">
+                        <i class="fas fa-arrow-right"></i> Try Now
+                    </a>
+            </div>
+        </div>
+
+        <!-- Weather Information -->
+        <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud-sun"></i>
+                    </div>
+                    <h4 class="feature-title">Real-Time Weather</h4>
+                    <p class="feature-description"style="color: #000;">Access comprehensive weather forecasts and historical data to make informed farming decisions.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> 7-day forecasts</li>
+                        <li><i class="fas fa-check"></i> Historical data</li>
+                        <li><i class="fas fa-check"></i> Location-specific alerts</li>
+                    </ul>
+                    <a href="{{ url_for('weather') }}" class="feature-btn">
+                        <i class="fas fa-arrow-right"></i> Check Weather
+                    </a>
+            </div>
+        </div>
+
+            <!-- Disease Diagnosis -->
+        <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-microscope"></i>
+                    </div>
+                    <h4 class="feature-title">Crop Disease Diagnosis</h4>
+                    <p class="feature-description"style="color: #000;">AI-powered disease detection and treatment recommendations using advanced image recognition.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Instant diagnosis</li>
+                        <li><i class="fas fa-check"></i> Treatment plans</li>
+                        <li><i class="fas fa-check"></i> Prevention tips</li>
+                    </ul>
+                    <a href="{{ url_for('openai_diagnosis') }}" class="feature-btn">
+                        <i class="fas fa-arrow-right"></i> Diagnose Now
+                    </a>
+            </div>
+        </div>
+
+        <!-- Farmer Marketplace -->
+        <div class="col-md-6 col-lg-4">
+                <div class="feature-card"> 
+                    <div class="feature-icon">
+                        <i class="fas fa-store"></i>
+                    </div>                   
+                    <h4 class="feature-title">Farmer Marketplace</h4>
+                    <p class="feature-description"style="color: #000;">Connect directly with farmers and consumers in our comprehensive agricultural marketplace.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Direct farmer connection</li>
+                        <li><i class="fas fa-check"></i> Secure transactions</li>
+                        <li><i class="fas fa-check"></i> Quality assurance</li>
+                    </ul>
+                    <a href="{{ url_for('marketplace') }}" class="feature-btn">
+                        <i class="fas fa-arrow-right"></i> Explore Now
+                    </a>
+                </div>
+            </div>
+
+            <!-- Yield Forecasting -->
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4 class="feature-title">Yield Forecasting</h4>
+                    <p class="feature-description"style="color: #000;">Predict crop yields using advanced machine learning models and historical data analysis.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Accurate predictions</li>
+                        <li><i class="fas fa-check"></i> Market analysis</li>
+                        <li><i class="fas fa-check"></i> Planning tools</li>
+                    </ul>
+                    <a href="{{ url_for('forecast_yield') }}" class="feature-btn">
+                        <i class="fas fa-arrow-right"></i> Forecast Now
+                    </a>
+            </div>
+        </div>
+
+            <!-- Pest Risk Prediction -->
+        <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bug"></i>
+                    </div>
+                    <h4 class="feature-title">Pest Risk Prediction</h4>
+                    <p class="feature-description"style="color: #000;">Predict and prevent pest infestations with our advanced AI-powered risk assessment system.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Risk assessment</li>
+                        <li><i class="fas fa-check"></i> Early warnings</li>
+                        <li><i class="fas fa-check"></i> Prevention strategies</li>
+                    </ul>
+                    <a href="{{ url_for('predict_pest') }}" class="feature-btn">
+                        <i class="fas fa-arrow-right"></i> Assess Risk
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-5" style="background: white;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-4 fw-bold text-dark mb-3">How It Works</h2>
+            <p class="lead text-muted">Get started in just a few simple steps</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h4 class="step-title">Sign Up & Create Profile</h4>
+                    <p class="step-description">Join our community and create your farmer or consumer profile in minutes.</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h4 class="step-title">Explore Our Tools</h4>
+                    <p class="step-description">Use our AI-powered tools for crop recommendations, weather insights, and disease diagnosis.</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h4 class="step-title">Connect & Grow</h4>
+                    <p class="step-description">Connect with other farmers, sell your products, and grow your agricultural business.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Technology Showcase Section -->
+<section class="py-5" style="background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%); color: white;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-4 fw-bold mb-3"style="color : yellow">Powered by Advanced Technology</h2>
+            <p class="lead opacity-75" style="color: #e9ecef;">Experience the future of agriculture with cutting-edge AI and machine learning</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-3 text-center">
+                <div class="tech-showcase-item">
+                    <div class="tech-icon-large">
+                        <i class="fas fa-brain" style="color: #f8f9fa;"></i>
+                    </div>
+                    <h5>Machine Learning</h5>
+                    <p>Advanced algorithms for accurate predictions</p>
+                </div>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="tech-showcase-item">
+                    <div class="tech-icon-large">
+                        <i class="fas fa-eye"style="color: #f8f9fa;"></i>
+                    </div>
+                    <h5>Computer Vision</h5>
+                    <p>Image recognition for disease detection</p>
+                </div>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="tech-showcase-item">
+                    <div class="tech-icon-large">
+                        <i class="fas fa-database"style="color: #f8f9fa;"></i>
+                    </div>
+                    <h5>Big Data</h5>
+                    <p>Processing vast amounts of agricultural data</p>
+                </div>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="tech-showcase-item">
+                    <div class="tech-icon-large">
+                        <i class="fas fa-mobile-alt"style="color: #f8f9fa;"></i>
+                    </div>
+                    <h5>Mobile First</h5>
+                    <p>Accessible on any device, anywhere</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+    <div class="container text-center">
+        <div class="cta-content">
+            <h2 class="display-4 fw-bold text-dark mb-4">Ready to Experience the Future of Farming?</h2>
+            <p class="lead text-muted mb-5">Be among the first to discover how AI can revolutionize your agricultural practices. Start your smart farming journey today.</p>
+            
+        {% if not current_user.is_authenticated %}
+            <div class="cta-buttons">
+                <a href="{{ url_for('register') }}" class="btn-cta-primary">
+                    <i class="fas fa-rocket"></i> Start Your Journey
+                </a>
+                <a href="{{ url_for('login') }}" class="btn-cta-secondary">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </a>
+            </div>
+        {% else %}
+            <div class="cta-buttons">
+                <a href="{{ url_for('dashboard') }}" class="btn-cta-primary">
+                    <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                </a>
+                <a href="{{ url_for('marketplace') }}" class="btn-cta-secondary">
+                    <i class="fas fa-store"></i> Explore Marketplace
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+</section>
+
+<style>
+    .feature-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        height: 100%;
+        border: 1px solid #e9ecef;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    }
+    
+    .feature-card.featured {
+        border: 2px solid #4caf50;
+        background: linear-gradient(135deg, #f8fff8, #ffffff);
+    }
+    
+    .feature-badge {
+        position: absolute;
+        top: -10px;
+        right: 20px;
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        color: white;
+        font-size: 2rem;
+    }
+    
+    .feature-icon i {
+        color: #ffffff !important;
+        font-size: 2rem;
+    }
+    
+    .feature-icon .fas {
+        color: #ffffff !important;
+    }
+    
+    .feature-card .fas {
+        color: #ffffff !important;
+    }
+    
+    .feature-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-description {
+        color: #f8f8f8;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+    
+    .feature-list {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 2rem;
+    }
+    
+    .feature-list li {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        color: #495057;
+    }
+    
+    .feature-list i {
+        color: #4caf50;
+        margin-right: 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    .feature-btn {
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 25px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .feature-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .step-card {
+        padding: 2rem;
+    }
+    
+    .step-number {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0 auto 1.5rem auto;
+    }
+    
+    .step-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+    
+    .step-description {
+        color: #6c757d;
+        line-height: 1.6;
+    }
+    
+    .tech-showcase-item {
+        padding: 2rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .tech-showcase-item:hover {
+        transform: translateY(-5px);
+    }
+    
+    .tech-icon-large {
+        width: 80px;
+        height: 80px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem auto;
+        font-size: 2rem;
+        color: #ffffff;
+        transition: all 0.3s ease;
+    }
+    
+    .tech-showcase-item:hover .tech-icon-large {
+        background: rgba(255,255,255,0.2);
+        transform: scale(1.1);
+    }
+    
+    .tech-showcase-item h5 {
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: white;
+    }
+    
+    .tech-showcase-item p {
+        opacity: 0.9;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin: 0;
+    }
+    
+    .cta-content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .cta-buttons {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .btn-cta-primary {
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 18px 40px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-cta-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(76, 175, 80, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-cta-secondary {
+        background: transparent;
+        color: #2e7d32;
+        border: 3px solid #2e7d32;
+        border-radius: 50px;
+        padding: 15px 40px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-cta-secondary:hover {
+        background: #2e7d32;
+        color: white;
+        transform: translateY(-3px);
+        text-decoration: none;
+    }
+    
+    @media (max-width: 768px) {
+        .cta-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn-cta-primary,
+        .btn-cta-secondary {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}

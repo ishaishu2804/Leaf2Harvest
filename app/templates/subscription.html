@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+
+{% block title %}Subscription Plans | Leaf2Harvest{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(120deg, #e8f5e9, #f1f8e9);
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .subscription-hero {
+        background: linear-gradient(135deg, #43a047 0%, #66bb6a 100%);
+        color: white;
+        padding: 70px 0;
+        text-align: center;
+        border-radius: 0 0 30px 30px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    }
+
+    .subscription-hero h1 {
+        font-weight: 700;
+        font-size: 3rem;
+        letter-spacing: 1px;
+        text-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+
+    .subscription-hero p {
+        font-size: 1.1rem;
+        opacity: 0.95;
+    }
+
+    .plan-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        transition: all 0.28s ease;
+        overflow: hidden;
+        background: white;
+    }
+
+    .plan-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    .plan-card.featured {
+        border: 2px solid #2e7d32;
+        position: relative;
+    }
+
+    .plan-card.featured::before {
+        content: 'POPULAR';
+        position: absolute;
+        top: 14px;
+        right: -30px;
+        background: #2e7d32;
+        color: white;
+        padding: 6px 36px;
+        font-size: 12px;
+        font-weight: 700;
+        transform: rotate(45deg);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    .plan-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #eef2f3 100%);
+        padding: 36px 20px;
+        text-align: center;
+    }
+
+    .plan-header.premium {
+        background: linear-gradient(135deg, #43a047, #66bb6a);
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .plan-header.premium::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -60%;
+        width: 220%;
+        height: 100%;
+        background: rgba(255,255,255,0.12);
+        transform: skewX(-18deg);
+        animation: shine 3.2s linear infinite;
+    }
+
+    @keyframes shine {
+        0% { left: -60%; }
+        50% { left: 100%; }
+        100% { left: 100%; }
+    }
+
+    .plan-price {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: #2e7d32;
+        margin: 8px 0;
+    }
+
+    .plan-header.premium .plan-price {
+        color: #fff;
+        text-shadow: 0 0 12px rgba(255,255,255,0.45);
+    }
+
+    .plan-features {
+        padding: 22px 20px 28px;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        font-size: 0.98rem;
+        color: #444;
+    }
+
+    .feature-item i {
+        color: #43a047;
+        margin-right: 12px;
+        min-width: 20px;
+        text-align: center;
+    }
+
+    .card-footer {
+        border-top: 1px solid #f1f1f1;
+    }
+
+    .upgrade-btn {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border: none;
+        transition: all 0.28s ease-in-out;
+        box-shadow: 0 6px 14px rgba(46,125,50,0.18);
+    }
+    .upgrade-btn:hover {
+        transform: translateY(-3px) scale(1.03);
+        background: linear-gradient(135deg, #20c997, #28a745);
+        box-shadow: 0 10px 20px rgba(46,125,50,0.22);
+    }
+
+    .compare-table {
+        background: white;
+        border-radius: 18px;
+        padding: 26px;
+        margin-top: 44px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+
+    .compare-table table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: center;
+    }
+
+    .compare-table th, .compare-table td {
+        padding: 12px 10px;
+        border-bottom: 1px solid #eef2ee;
+    }
+
+    .compare-table th {
+        background: #f0fbf2;
+        color: #2e7d32;
+        font-weight: 700;
+    }
+
+    .testimonials, .faq {
+        background: white;
+        border-radius: 16px;
+        padding: 30px;
+        margin-top: 40px;
+        box-shadow: 0 8px 18px rgba(0,0,0,0.04);
+    }
+
+    .faq-item {
+        margin-bottom: 18px;
+    }
+
+    .faq-item h6 {
+        font-weight: 700;
+        color: #2e7d32;
+    }
+
+    .faq-item p {
+        color: #555;
+        margin: 6px 0 0;
+    }
+
+    /* responsive small screens */
+    @media (max-width: 767px) {
+        .plan-price { font-size: 2rem; }
+        .subscription-hero h1 { font-size: 2rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="subscription-hero">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold mb-2"><i class="fas fa-leaf me-2"></i>Leaf2Harvest Plans</h1>
+        <p class="mb-0">Welcome — you're new here. Start with the Free plan and explore AI-powered crop insights 🌱</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Free Plan -->
+        <div class="col-md-6">
+            <div class="card plan-card h-100">
+                <div class="plan-header">
+                    <h3 class="mb-2">Free Plan</h3>
+                    <div class="plan-price text-muted">₹0</div>
+                    <p class="mb-0">Perfect for getting started with AI-powered crop insights.</p>
+                </div>
+                <div class="plan-features">
+                    <div class="feature-item"><i class="fas fa-check"></i>5 AI Diagnoses per day</div>
+                    <div class="feature-item"><i class="fas fa-check"></i>Unlimited local model analysis</div>
+                    <div class="feature-item"><i class="fas fa-check"></i>Basic treatment advice</div>
+                    <div class="feature-item"><i class="fas fa-check"></i>Diagnosis history</div>
+                </div>
+                <div class="card-footer text-center bg-light">
+                    <span class="badge bg-success fs-6">Current Plan</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Premium Plan -->
+        <div class="col-md-6">
+            <div class="card plan-card featured h-100">
+                <div class="plan-header premium">
+                    <h3 class="mb-2">Premium Plan</h3>
+                    <div class="plan-price">₹99 <span style="font-size:0.95rem; font-weight:600;">/Month</span></div>
+                    <p class="mb-0">Unlock full AI power for smarter, faster decisions.</p>
+                </div>
+                <div class="plan-features">
+                    <div class="feature-item"><i class="fas fa-check"></i>Unlimited AI Diagnoses</div>
+                    <div class="feature-item"><i class="fas fa-check"></i>Priority Processing</div>
+                    <div class="feature-item"><i class="fas fa-check"></i>Advanced Treatment Plans</div>
+                    <div class="feature-item"><i class="fas fa-check"></i>Detailed Disease Reports</div>
+                    <div class="feature-item"><i class="fas fa-check"></i>Expert Consultation Access</div>
+                    <div class="feature-item"><i class="fas fa-check"></i>Exportable Reports</div>
+                </div>
+                <div class="card-footer text-center bg-light">
+                    <a href="{{ url_for('upgrade_premium') }}" class="btn btn-lg upgrade-btn">
+                        <i class="fas fa-crown me-2"></i>Upgrade to Premium
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compare Plans -->
+    <div class="compare-table mt-5">
+        <h4 class="text-center mb-3 text-success"><i class="fas fa-balance-scale me-2"></i>Compare Plans</h4>
+        <table>
+            <thead>
+                <tr><th>Feature</th><th>Free</th><th>Premium</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>AI Diagnoses</td><td>5 / day</td><td>Unlimited</td></tr>
+                <tr><td>Report Export</td><td>—</td><td>✔️</td></tr>
+                <tr><td>Expert Consultation</td><td>—</td><td>✔️</td></tr>
+                <tr><td>Priority Speed</td><td>—</td><td>✔️</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    
+
+    <!-- FAQ Section -->
+    <div class="faq mt-4">
+        <h4 class="text-success mb-3"><i class="fas fa-question-circle me-2"></i>Frequently Asked Questions</h4>
+        <div class="faq-item">
+            <h6>Do I need technical knowledge?</h6>
+            <p>No — upload crop info or an image and get instant analysis. Simple UI built for farmers.</p>
+        </div>
+        <div class="faq-item">
+            <h6>Can I cancel my premium plan anytime?</h6>
+            <p>Yes. You can downgrade or cancel without extra charges.</p>
+        </div>
+        <div class="faq-item">
+            <h6>How accurate are AI predictions?</h6>
+            <p>We use weather + ML models; accuracy is high but depends on image quality and data — always include clear photos.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,783 @@
+{% extends "base.html" %}
+
+{% block title %}Crop Health Monitoring Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row lower-section-bg">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4 premium-header">
+                <h1 class="h3 mb-0">🌱 Crop Health Monitoring Dashboard</h1>
+                <div>
+                    <a href="{{ url_for('add_health_data') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Health Data
+                    </a>
+                    <button class="btn btn-outline-danger" onclick="clearAllData()">
+                        <i class="fas fa-trash-alt"></i> Clear All Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Alerts Section -->
+    {% if trends.risk_alerts %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-warning" role="alert">
+                <h5 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Risk Alerts</h5>
+                {% for alert in trends.risk_alerts %}
+                <p class="mb-1">{{ alert }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Key Metrics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ weather_data|length }}</h4>
+                            <p class="card-text">Weather Records</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-cloud-rain fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ pest_data|length }}</h4>
+                            <p class="card-text">Pest Risk Records</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-bug fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ disease_data|length }}</h4>
+                            <p class="card-text">Disease Records</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-virus fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title" id="avgPestRisk">{{ "%.1f"|format((pest_data|map(attribute='risk_score')|list|sum / pest_data|length * 100) if pest_data else 0) }}%</h4>
+                            <p class="card-text">Average Pest Risk</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Charts Section -->
+    <div class="row lower-section-bg">
+        <!-- Pest Risk by Crop -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0" style="color: #000;">
+                        <i class="fas fa-chart-bar text-primary"></i> Pest Risk by Crop
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="comprehensiveRiskChart"></canvas>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <strong>Analysis:</strong> Horizontal stacked bars show % of Low/Medium/High risk per crop
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Environmental Impact on Disease -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0" style="color: #000;">
+                        <i class="fas fa-chart-line text-danger"></i> Environmental Impact on Disease
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="diseaseComparisonChart"></canvas>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <strong>Analysis:</strong> Dual-line comparison of average Temperature & Humidity
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Analysis Charts -->
+    <div class="row">
+        <!-- Weather Trends -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0" style="color: #000;">
+                        🌤️ Weather Trends
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 250px;">
+                        <canvas id="weatherTrendsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Disease Severity -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0" style="color: #000;">
+                        <i class="fas fa-tachometer-alt text-danger"></i> Disease Severity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 250px;">
+                        <canvas id="diseaseSeverityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Current Health Summary -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0" style="color: #000;">
+                        <i class="fas fa-sun text-success"></i> 🌤 Current Health Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-2" id="currentHealthSummary">
+                        <li><strong>Healthy Crops:</strong> <span id="summaryHealthy">-</span></li>
+                        <li><strong>Diseased Crops:</strong> <span id="summaryDiseased">-</span> <span id="summaryDiseaseAlert" class="ms-2"></span></li>
+                        <li class="mb-1"><strong>Avg Pest Risk:</strong> <span id="summaryPestRisk">-</span> <span id="summaryPestTrend" class="ms-2"></span></li>
+                        <li><div class="progress" style="height:8px; border-radius:8px; background:#e9ecef;"><div id="pestRiskProgress" style="width:0%; height:8px; border-radius:8px; background: linear-gradient(90deg, #28a745, #ffc107, #dc3545);"></div></div></li>
+                        <li class="mt-2"><strong>Weather Index:</strong> <span id="summaryWeatherIndex">-</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Data Tables -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-table text-primary"></i> Recent Weather Data
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm" id="weatherTable">
+                            <thead>
+                                <tr>
+                                    <th>📅 Date</th>
+                                    <th>📍 Location</th>
+                                    <th>🌡️ Temp (°C)</th>
+                                    <th>💧 Humidity (%)</th>
+                                    <th>🌧️ Rainfall (mm)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for weather in weather_data[:5] %}
+                                <tr>
+                                    <td>{{ weather.date.strftime('%m/%d') }}</td>
+                                    <td>{{ weather.location }}</td>
+                                    <td>{{ "%.1f"|format(weather.temperature) }}</td>
+                                    <td>{{ "%.1f"|format(weather.humidity) }}</td>
+                                    <td>{{ "%.1f"|format(weather.rainfall) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-table text-warning"></i> Recent Pest Risk Data
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm" id="pestTable">
+                            <thead>
+                                <tr>
+                                    <th>📅 Date</th>
+                                    <th>🌾 Crop</th>
+                                    <th>⚠️ Risk Level</th>
+                                    <th>📊 Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pest in pest_data[:5] %}
+                                <tr {% if pest.risk_score and pest.risk_score >= 0.7 %}style="background-color: rgba(220,53,69,0.08);"{% endif %}>
+                                    <td>{{ pest.date.strftime('%m/%d') }}</td>
+                                    <td>{{ pest.crop_type }}</td>
+                                    <td>
+                                        {% set level = (pest.risk_level or pest.pest_risk_level) %}
+                                        <span class="badge badge-{% if (level or '').lower() == 'high' %}danger{% elif (level or '').lower() == 'medium' %}warning{% elif (level or '').lower() == 'low' %}success{% else %}secondary{% endif %}"
+                                              style="color: #000; {% if pest.risk_score and pest.risk_score >= 0.7 %}background-color: rgba(220,53,69,0.15);{% elif pest.risk_score and pest.risk_score >= 0.3 %}background-color: rgba(255,193,7,0.2);{% else %}background-color: rgba(40,167,69,0.15);{% endif %}">
+                                            {{ (level or 'Unknown')|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ "%.2f"|format(pest.risk_score) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+/* Enhanced card styling */
+.card {
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.card-body {
+    border-radius: 0 0 12px 12px;
+}
+
+/* Enhanced table styling */
+.table {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table thead th {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Metric cards enhancement */
+.bg-primary, .bg-warning, .bg-danger, .bg-info {
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Chart container styling */
+.card-body > div[style*="height"] {
+    border-radius: 8px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    padding: 10px;
+}
+
+/* Subtle background for lower sections */
+.lower-section-bg {
+    background-color: #eef9ee;
+    border-radius: 12px;
+    padding-top: 6px;
+}
+
+/* Ensure badge text is always visible */
+.badge {
+    color: #000 !important;
+    font-weight: 600;
+}
+
+.badge-success {
+    background-color: #28a745 !important;
+    color: #fff !important;
+}
+
+.badge-warning {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+.badge-danger {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+/* Pulse effect for high risk gauge */
+.pulse {
+    animation: pulseGlow 1.5s infinite;
+}
+
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 rgba(220, 53, 69, 0.4); }
+    50% { box-shadow: 0 0 20px rgba(220, 53, 69, 0.6); }
+    100% { box-shadow: 0 0 0 rgba(220, 53, 69, 0.4); }
+}
+
+/* Force card header titles to black */
+.card-header .card-title { color: #000 !important; }
+
+/* Premium gradient header and fade-in cards */
+.premium-header {
+    background: linear-gradient(90deg, rgba(40,167,69,0.1), rgba(255,193,7,0.1));
+    border-radius: 12px;
+    padding: 10px 14px;
+}
+
+.card { opacity: 0; animation: fadeIn 0.4s ease forwards; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<script>
+// Global chart configurations
+Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+Chart.defaults.font.size = 12;
+
+// Fetch chart data from API
+let chartData = null;
+
+async function fetchChartData() {
+    try {
+        const response = await fetch('/api/health-trends?days=30');
+        chartData = await response.json();
+        initializeCharts();
+    } catch (error) {
+        console.error('Error fetching chart data:', error);
+    }
+}
+
+// Update Current Health Summary panel safely
+function updateCurrentHealthSummary() {
+    const totalDiseaseRecords = (chartData && chartData.individual_disease ? chartData.individual_disease.length : 0);
+    const totalHealthyRecords = (chartData && chartData.individual_weather ? chartData.individual_weather.length : 0);
+    const total = totalDiseaseRecords + totalHealthyRecords;
+    const healthyPct = total > 0 ? Math.round((totalHealthyRecords / total) * 100) : 0;
+    const diseasedPct = total > 0 ? Math.round((totalDiseaseRecords / total) * 100) : 0;
+    const pestArr = (chartData && Array.isArray(chartData.pest_risk)) ? chartData.pest_risk : [];
+    const avgPest = pestArr.length ? Math.round((pestArr.reduce((s, v) => s + Number(v || 0), 0) / pestArr.length) * 1000) / 10 : 0;
+    const weatherIndex = (chartData && Array.isArray(chartData.temperature) && chartData.temperature.length) ? 'Stable' : 'N/A';
+
+    const healthyEl = document.getElementById('summaryHealthy');
+    const diseasedEl = document.getElementById('summaryDiseased');
+    const pestEl = document.getElementById('summaryPestRisk');
+    const weatherEl = document.getElementById('summaryWeatherIndex');
+    if (healthyEl) healthyEl.textContent = healthyPct + '%';
+    if (diseasedEl) diseasedEl.textContent = diseasedPct + '%';
+    if (pestEl) pestEl.textContent = avgPest.toFixed(1).replace(/\.0$/, '') + '%';
+    if (weatherEl) weatherEl.textContent = weatherIndex;
+
+    const trendEl = document.getElementById('summaryPestTrend');
+    if (trendEl) {
+        trendEl.textContent = avgPest > 60 ? 'Increasing ⬆️' : 'Stable ↔️';
+        trendEl.style.color = avgPest > 70 ? '#dc3545' : avgPest > 40 ? '#fd7e14' : '#28a745';
+    }
+    const alertEl = document.getElementById('summaryDiseaseAlert');
+    if (alertEl) {
+        alertEl.textContent = diseasedPct > 30 ? 'High 🚨' : (diseasedPct > 10 ? 'Watch ⚠️' : 'Low ✅');
+        alertEl.style.color = diseasedPct > 30 ? '#dc3545' : diseasedPct > 10 ? '#fd7e14' : '#28a745';
+    }
+    const progressEl = document.getElementById('pestRiskProgress');
+    if (progressEl) progressEl.style.width = Math.max(0, Math.min(100, avgPest)) + '%';
+}
+
+function initializeCharts() {
+    if (!chartData) return;
+    updateCurrentHealthSummary();
+
+    // Pest Risk by Crop - Horizontal stacked percentage chart with gradient colors
+    const comprehensiveRiskCtx = document.getElementById('comprehensiveRiskChart').getContext('2d');
+    
+    // Calculate counts by crop and severity, then convert to percentages
+    const riskByCropAndSeverity = {};
+    if (chartData.individual_pest) {
+        chartData.individual_pest.forEach(pest => {
+            const crop = pest.crop_type || 'Unknown';
+            if (!riskByCropAndSeverity[crop]) {
+                riskByCropAndSeverity[crop] = { low: 0, medium: 0, high: 0 };
+            }
+            
+            const score = pest.risk_score;
+            if (score < 0.3) {
+                riskByCropAndSeverity[crop].low++;
+            } else if (score < 0.7) {
+                riskByCropAndSeverity[crop].medium++;
+            } else {
+                riskByCropAndSeverity[crop].high++;
+            }
+        });
+    }
+    
+    const cropLabels = Object.keys(riskByCropAndSeverity);
+    const lowRiskData = [];
+    const mediumRiskData = [];
+    const highRiskData = [];
+    cropLabels.forEach(crop => {
+        const total = riskByCropAndSeverity[crop].low + riskByCropAndSeverity[crop].medium + riskByCropAndSeverity[crop].high;
+        if (total === 0) {
+            lowRiskData.push(0); mediumRiskData.push(0); highRiskData.push(0);
+        } else {
+            lowRiskData.push((riskByCropAndSeverity[crop].low / total) * 100);
+            mediumRiskData.push((riskByCropAndSeverity[crop].medium / total) * 100);
+            highRiskData.push((riskByCropAndSeverity[crop].high / total) * 100);
+        }
+    });
+    
+    new Chart(comprehensiveRiskCtx, {
+        type: 'bar',
+        data: {
+            labels: cropLabels,
+            datasets: [{
+                label: 'Low Risk %',
+                data: lowRiskData,
+                backgroundColor: 'rgba(40, 167, 69, 0.8)',
+                borderColor: 'rgba(40, 167, 69, 1)',
+                borderWidth: 1
+            }, {
+                label: 'Medium Risk %',
+                data: mediumRiskData,
+                backgroundColor: 'rgba(255, 193, 7, 0.8)',
+                borderColor: 'rgba(255, 193, 7, 1)',
+                borderWidth: 1
+            }, {
+                label: 'High Risk %',
+                data: highRiskData,
+                backgroundColor: 'rgba(220, 53, 69, 0.8)',
+                borderColor: 'rgba(220, 53, 69, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            aspectRatio: 2,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    stacked: true,
+                    title: {
+                        display: true,
+                        text: 'Percentage of records (%)'
+                    }
+                },
+                y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Crop Type'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Pest Risk by Crop',
+                    color: '#000'
+                }
+            }
+        }
+    });
+
+    // Environmental Impact on Disease - Dual-line (Temperature & Humidity)
+    const diseaseComparisonCtx = document.getElementById('diseaseComparisonChart').getContext('2d');
+    
+    // Calculate average conditions for healthy vs diseased crops
+    let healthyTemp = 0, healthyHumidity = 0, healthyCount = 0;
+    let diseasedTemp = 0, diseasedHumidity = 0, diseasedCount = 0;
+    
+    // Use weather records as healthy conditions
+    if (chartData.individual_weather) {
+        chartData.individual_weather.forEach(record => {
+            healthyTemp += record.temperature;
+            healthyHumidity += record.humidity;
+            healthyCount++;
+        });
+    }
+    
+    // Use disease records as diseased conditions
+    if (chartData.individual_disease) {
+        chartData.individual_disease.forEach(record => {
+            diseasedTemp += record.temperature;
+            diseasedHumidity += record.humidity;
+            diseasedCount++;
+        });
+    }
+    
+    // Calculate averages
+    const avgHealthyTemp = healthyCount > 0 ? healthyTemp / healthyCount : 0;
+    const avgHealthyHumidity = healthyCount > 0 ? healthyHumidity / healthyCount : 0;
+    const avgDiseasedTemp = diseasedCount > 0 ? diseasedTemp / diseasedCount : 0;
+    const avgDiseasedHumidity = diseasedCount > 0 ? diseasedHumidity / diseasedCount : 0;
+    
+    new Chart(diseaseComparisonCtx, {
+        type: 'line',
+        data: {
+            labels: ['Temperature', 'Humidity'],
+            datasets: [{
+                label: 'Healthy - Temperature (°C)',
+                data: [avgHealthyTemp, null],
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.3,
+                pointRadius: 4,
+                pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                spanGaps: true
+            }, {
+                label: 'Healthy - Humidity (%)',
+                data: [null, avgHealthyHumidity],
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                tension: 0.3,
+                pointRadius: 4,
+                pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                spanGaps: true
+            }, {
+                label: 'Diseased - Temperature (°C)',
+                data: [avgDiseasedTemp, null],
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                tension: 0.3,
+                pointRadius: 4,
+                pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+                spanGaps: true
+            }, {
+                label: 'Diseased - Humidity (%)',
+                data: [null, avgDiseasedHumidity],
+                borderColor: 'rgba(255, 159, 64, 1)',
+                backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                tension: 0.3,
+                pointRadius: 4,
+                pointBackgroundColor: 'rgba(255, 159, 64, 1)',
+                spanGaps: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            aspectRatio: 2,
+            scales: {
+                x: { grid: { color: 'rgba(0,0,0,0.05)' } },
+                y: { grid: { color: 'rgba(0,0,0,0.05)' } }
+            },
+            plugins: {
+                legend: { position: 'bottom' },
+                title: { display: true, text: 'Environmental Impact on Disease', color: '#000' }
+            }
+        }
+    });
+
+    // Weather Trends Chart
+    const weatherTrendsCtx = document.getElementById('weatherTrendsChart').getContext('2d');
+    new Chart(weatherTrendsCtx, {
+        type: 'line',
+        data: {
+            labels: chartData.labels,
+            datasets: [{
+                label: 'Temperature (°C)',
+                data: chartData.temperature || [],
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.1)'
+            }, {
+                label: 'Humidity (%)',
+                data: chartData.humidity,
+                borderColor: 'rgb(54, 162, 235)',
+                backgroundColor: 'rgba(54, 162, 235, 0.1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            aspectRatio: 2,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+
+    // Disease Severity Chart - Enhanced Gauge Chart
+    const diseaseSeverityCtx = document.getElementById('diseaseSeverityChart').getContext('2d');
+    
+    // Calculate overall disease severity index (0-100)
+    let overallSeverityIndex = 0;
+    if (chartData.disease_severity && chartData.disease_severity.length > 0) {
+        const avgSeverity = chartData.disease_severity.reduce((sum, score) => sum + score, 0) / chartData.disease_severity.length;
+        overallSeverityIndex = Math.round(avgSeverity * 100);
+    }
+    
+    // Determine risk level and colors (thresholds: <40 green, <70 orange, else red)
+    let riskLevel, riskColor, progressColor;
+    if (overallSeverityIndex < 40) {
+        riskLevel = 'Low Risk';
+        riskColor = '#28a745';
+        progressColor = 'rgba(40, 167, 69, 0.8)';
+    } else if (overallSeverityIndex < 70) {
+        riskLevel = 'Medium Risk';
+        riskColor = '#fd7e14'; // Orange for medium
+        progressColor = 'rgba(253, 126, 20, 0.8)';
+    } else {
+        riskLevel = 'High Risk';
+        riskColor = '#dc3545';
+        progressColor = 'rgba(220, 53, 69, 0.8)';
+    }
+    
+    // Create enhanced gauge chart with progress segments
+    new Chart(diseaseSeverityCtx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [overallSeverityIndex, 100 - overallSeverityIndex],
+                backgroundColor: [progressColor, 'rgba(200, 200, 200, 0.2)'],
+                borderWidth: 0,
+                cutout: '75%'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            aspectRatio: 1.5,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    enabled: false
+                }
+            }
+        }
+    });
+    
+    // Add enhanced gauge text overlay with progress indicator
+    const gaugeContainer = diseaseSeverityCtx.canvas.parentElement;
+    const gaugeText = document.createElement('div');
+    gaugeText.style.cssText = `
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        font-weight: bold;
+        font-size: 24px;
+        color: ${riskColor};
+    `;
+    gaugeText.innerHTML = `
+        <div style="font-size: 36px; font-weight: 900;">${overallSeverityIndex}%</div>
+        <div style="font-size: 14px; color: #000; font-weight: 600;">Disease Severity</div>
+        <div style="font-size: 12px; color: #333; margin-top: 5px; font-weight: 600;">
+            ${riskLevel}
+        </div>
+        <div style="font-size: 10px; color: #666; margin-top: 3px;">
+            ${overallSeverityIndex < 30 ? '🟢 Safe' : overallSeverityIndex < 70 ? '🟠 Caution' : '🔴 Alert'}
+        </div>
+    `;
+    gaugeContainer.style.position = 'relative';
+    if (riskLevel === 'High Risk') {
+        gaugeContainer.classList.add('pulse');
+    } else {
+        gaugeContainer.classList.remove('pulse');
+    }
+    gaugeContainer.appendChild(gaugeText);
+}
+
+function refreshCharts() {
+    fetchChartData();
+}
+
+function clearAllData() {
+    if (confirm('⚠️ Are you sure you want to clear ALL health monitoring data? This action cannot be undone!')) {
+        // Create a form to submit the clear request
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/clear-health-data';
+        
+        // Add CSRF token if needed (Flask-WTF style)
+        const csrfToken = document.querySelector('meta[name=csrf-token]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = csrfToken.getAttribute('content');
+            form.appendChild(csrfInput);
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Initialize charts when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    fetchChartData();
+});
+</script>
+{% endblock %}

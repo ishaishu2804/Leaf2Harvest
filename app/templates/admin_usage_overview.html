@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Usage Overview - LeafToHarvest{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-chart-bar"></i> Admin Usage Overview
+                <small class="text-muted">(Last {{ aggregate_stats.period_days }} days)</small>
+            </h2>
+            
+            <!-- Aggregate Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h3 class="card-title">{{ aggregate_stats.total_calls }}</h3>
+                                    <p class="card-text">Total API Calls</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-phone fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h3 class="card-title">{{ aggregate_stats.total_tokens }}</h3>
+                                    <p class="card-text">Total Tokens Used</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-coins fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h3 class="card-title">${{ aggregate_stats.total_cost }}</h3>
+                                    <p class="card-text">Total Estimated Cost</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-dollar-sign fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Service Breakdown -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-pie-chart"></i> Service Usage Breakdown</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if aggregate_stats.service_breakdown %}
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Service Type</th>
+                                            <th>Calls</th>
+                                            <th>Tokens</th>
+                                            <th>Cost</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for service in aggregate_stats.service_breakdown %}
+                                        <tr>
+                                            <td>
+                                                <span class="badge badge-{% if service.service_type == 'openai' %}primary{% elif service.service_type == 'local_model' %}info{% else %}secondary{% endif %}">
+                                                    {{ service.service_type.title() }}
+                                                </span>
+                                            </td>
+                                            <td>{{ service.count }}</td>
+                                            <td>{{ service.tokens }}</td>
+                                            <td>${{ service.cost }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <p class="text-muted">No service breakdown data available.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-users"></i> Top Users by Usage</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if aggregate_stats.top_users %}
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Username</th>
+                                            <th>Calls</th>
+                                            <th>Tokens</th>
+                                            <th>Cost</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for user in aggregate_stats.top_users %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ user.username }}</strong>
+                                            </td>
+                                            <td>{{ user.call_count }}</td>
+                                            <td>{{ user.total_tokens }}</td>
+                                            <td>${{ user.total_cost }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <p class="text-muted">No user data available.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Usage Trends Chart Placeholder -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> Usage Trends</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Usage Trends Chart</h5>
+                        <p class="text-muted">Chart visualization would be implemented here using Chart.js or similar library.</p>
+                        <p class="text-muted">This would show daily usage patterns, cost trends, and service usage over time.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cost Analysis -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-calculator"></i> Cost Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Cost Breakdown by Service:</h6>
+                            {% if aggregate_stats.service_breakdown %}
+                            <ul class="list-group list-group-flush">
+                                {% for service in aggregate_stats.service_breakdown %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ service.service_type.title() }}
+                                    <span class="badge badge-primary badge-pill">${{ service.cost }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Average Cost per Call:</h6>
+                            {% if aggregate_stats.total_calls > 0 %}
+                            <div class="text-center">
+                                <h3 class="text-primary">${{ (aggregate_stats.total_cost / aggregate_stats.total_calls)|round(6) }}</h3>
+                                <p class="text-muted">per API call</p>
+                            </div>
+                            {% else %}
+                            <p class="text-muted">No calls recorded.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="row">
+                <div class="col-12 text-center">
+                    <a href="{{ url_for('usage_dashboard') }}" class="btn btn-primary">
+                        <i class="fas fa-user"></i> My Usage Dashboard
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary ml-2">
+                        <i class="fas fa-tachometer-alt"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Auto-refresh script -->
+<script>
+// Auto-refresh the page every 10 minutes to show updated stats
+setTimeout(function() {
+    location.reload();
+}, 600000); // 10 minutes
+</script>
+{% endblock %}

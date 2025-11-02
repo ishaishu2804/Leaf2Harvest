@@ -1,0 +1,529 @@
+{% extends "base.html" %}
+
+{% block title %}📊 AI Yield Forecasting{% endblock %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    
+    body {
+        background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 50%, #e3f2fd 100%);
+        font-family: 'Poppins', sans-serif;
+        min-height: 100vh;
+    }
+    
+    .forecast-hero {
+        background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+        color: white;
+        padding: 60px 0;
+        margin-bottom: 40px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .forecast-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    .forecast-hero h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .forecast-hero p {
+        font-size: 1.4rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .forecast-form {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e9ecef;
+        margin-bottom: 3rem;
+    }
+    
+    .form-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .form-header h2 {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-header p {
+        color: #6c757d;
+        font-size: 1.1rem;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .form-group {
+        position: relative;
+    }
+    
+    .form-label {
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .form-label .emoji {
+        font-size: 1.3rem;
+        margin-right: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #4caf50;
+        box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
+        background: #ffffff;
+        transform: translateY(-2px);
+    }
+    
+    .input-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        font-size: 18px;
+    }
+    
+    .help-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 5px;
+        font-style: italic;
+    }
+    
+    .range-slider {
+        margin-top: 10px;
+    }
+    
+    .range-slider input[type="range"] {
+        width: 100%;
+        height: 8px;
+        border-radius: 5px;
+        background: #e9ecef;
+        outline: none;
+        -webkit-appearance: none;
+    }
+    
+    .range-slider input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #4caf50;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+    
+    .range-slider input[type="range"]::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #4caf50;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+    
+    .range-value {
+        display: inline-block;
+        background: #4caf50;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+    
+    .forecast-btn {
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        border: none;
+        padding: 15px 40px;
+        border-radius: 25px;
+        color: white;
+        font-size: 18px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        width: 100%;
+        margin-top: 20px;
+    }
+    
+    .forecast-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        color: white;
+    }
+    
+    .forecast-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .forecast-btn:hover::before {
+        left: 100%;
+    }
+    
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    .spinner-border-custom {
+        width: 3rem;
+        height: 3rem;
+        border-width: 0.3em;
+        color: #4caf50;
+    }
+    
+    .crop-info-section {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 2rem 0;
+        border-left: 4px solid #4caf50;
+    }
+    
+    .crop-info-section h5 {
+        color: #2e7d32;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .crop-info-section h5 i {
+        margin-right: 0.5rem;
+        color: #4caf50;
+    }
+    
+    .crop-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .crop-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease;
+        cursor: pointer;
+        border: 2px solid transparent;
+    }
+    
+    .crop-card:hover {
+        transform: translateY(-3px);
+        border-color: #4caf50;
+    }
+    
+    .crop-card.selected {
+        border-color: #4caf50;
+        background: #e8f5e8;
+    }
+    
+    .crop-card .crop-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .crop-card .crop-name {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.9rem;
+    }
+    
+    .crop-card .crop-yield {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    
+    @media (max-width: 768px) {
+        .forecast-hero h1 {
+            font-size: 2.5rem;
+        }
+        
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .forecast-form {
+            padding: 2rem;
+        }
+        
+        .crop-cards {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="forecast-hero">
+    <div class="container text-center">
+        <h1>📊 AI Yield Forecasting</h1>
+        <p class="lead mb-0">Predict your crop yield and seed production with advanced AI algorithms</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Crop Information Section -->
+            <div class="crop-info-section">
+                <h5>
+                    <i class="fas fa-info-circle"></i>How Yield Forecasting Works
+                </h5>
+                <p class="mb-3">Our AI analyzes multiple factors including crop type, planting area, seed quality, germination rates, and soil conditions to provide accurate yield predictions. The system uses historical data and environmental factors to give you realistic expectations for your harvest.</p>
+                
+                <div class="crop-cards">
+                    <div class="crop-card" data-crop="wheat">
+                        <div class="crop-icon">🌾</div>
+                        <div class="crop-name">Wheat</div>
+                        <div class="crop-yield">~3000 kg/acre</div>
+                    </div>
+                    <div class="crop-card" data-crop="rice">
+                        <div class="crop-icon">🌾</div>
+                        <div class="crop-name">Rice</div>
+                        <div class="crop-yield">~4000 kg/acre</div>
+                    </div>
+                    <div class="crop-card" data-crop="maize">
+                        <div class="crop-icon">🌽</div>
+                        <div class="crop-name">Maize</div>
+                        <div class="crop-yield">~3500 kg/acre</div>
+                    </div>
+                    <div class="crop-card" data-crop="sugarcane">
+                        <div class="crop-icon">🎋</div>
+                        <div class="crop-name">Sugarcane</div>
+                        <div class="crop-yield">~25000 kg/acre</div>
+                    </div>
+                    <div class="crop-card" data-crop="cotton">
+                        <div class="crop-icon">🌿</div>
+                        <div class="crop-name">Cotton</div>
+                        <div class="crop-yield">~800 kg/acre</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Forecast Form -->
+            <div class="forecast-form">
+                <div class="form-header">
+                    <h2>🌱 Enter Your Farming Details</h2>
+                    <p>Provide accurate information for the most precise yield predictions</p>
+                </div>
+                
+                <form method="POST" id="forecastForm">
+                    <div class="form-grid">
+                        <!-- Crop Selection -->
+                        <div class="form-group">
+                            <label for="crop_type" class="form-label">
+                                <span class="emoji">🌾</span> Crop Type
+                            </label>
+                            <select class="form-select" id="crop_type" name="crop_type" required>
+                                <option value="">Select Crop Type</option>
+                                <option value="wheat">🌾 Wheat</option>
+                                <option value="rice">🌾 Rice</option>
+                                <option value="maize">🌽 Maize</option>
+                                <option value="sugarcane">🎋 Sugarcane</option>
+                                <option value="cotton">🌿 Cotton</option>
+                            </select>
+                            <div class="help-text">Choose the crop you're planning to grow</div>
+                        </div>
+                        
+                        <!-- Area Planted -->
+                        <div class="form-group">
+                            <label for="area_planted" class="form-label">
+                                <span class="emoji">📏</span> Area Planted (acres)
+                            </label>
+                            <input type="number" class="form-control" id="area_planted" name="area_planted" 
+                                   step="0.01" min="0.01" required placeholder="Enter area in acres">
+                            <div class="input-icon">
+                                <i class="fas fa-ruler"></i>
+                            </div>
+                            <div class="help-text">Total area allocated for this crop</div>
+                            <div class="range-slider">
+                                <input type="range" min="0.1" max="100" value="5" step="0.1" 
+                                       oninput="document.getElementById('area_planted').value = this.value">
+                                <span class="range-value" id="area-value">5</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Seed Rate -->
+                        <div class="form-group">
+                            <label for="seed_rate" class="form-label">
+                                <span class="emoji">🌱</span> Seed Rate (kg/acre)
+                            </label>
+                            <input type="number" class="form-control" id="seed_rate" name="seed_rate" 
+                                   step="0.01" min="0.1" required placeholder="Enter seed rate">
+                            <div class="input-icon">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                            <div class="help-text">Amount of seeds used per acre</div>
+                            <div class="range-slider">
+                                <input type="range" min="1" max="50" value="10" step="0.1" 
+                                       oninput="document.getElementById('seed_rate').value = this.value">
+                                <span class="range-value" id="seed-rate-value">10</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Germination Rate -->
+                        <div class="form-group">
+                            <label for="expected_germination" class="form-label">
+                                <span class="emoji">🌿</span> Expected Germination Rate (%)
+                            </label>
+                            <input type="number" class="form-control" id="expected_germination" name="expected_germination" 
+                                   min="0" max="100" step="0.1" required placeholder="Enter germination rate">
+                            <div class="input-icon">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="help-text">Percentage of seeds expected to germinate</div>
+                            <div class="range-slider">
+                                <input type="range" min="50" max="100" value="85" step="0.1" 
+                                       oninput="document.getElementById('expected_germination').value = this.value">
+                                <span class="range-value" id="germination-value">85</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Soil Quality -->
+                        <div class="form-group">
+                            <label for="soil_quality" class="form-label">
+                                <span class="emoji">🌍</span> Soil Quality (1-10)
+                            </label>
+                            <input type="number" class="form-control" id="soil_quality" name="soil_quality" 
+                                   min="1" max="10" step="0.1" required placeholder="Rate soil quality">
+                            <div class="input-icon">
+                                <i class="fas fa-mountain"></i>
+                            </div>
+                            <div class="help-text">Rate your soil quality from 1 (poor) to 10 (excellent)</div>
+                            <div class="range-slider">
+                                <input type="range" min="1" max="10" value="7" step="0.1" 
+                                       oninput="document.getElementById('soil_quality').value = this.value">
+                                <span class="range-value" id="soil-quality-value">7</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn forecast-btn">
+                        <i class="fas fa-chart-line me-2"></i>Generate Yield Forecast
+                    </button>
+                    
+                    <!-- Loading Spinner -->
+                    <div class="loading-spinner" id="loadingSpinner">
+                        <div class="spinner-border spinner-border-custom" role="status">
+                            <span class="visually-hidden">Analyzing...</span>
+                        </div>
+                        <p class="mt-3 text-muted">Analyzing your farming data...</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Update range values when inputs change
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = ['area_planted', 'seed_rate', 'expected_germination', 'soil_quality'];
+    
+    inputs.forEach(inputId => {
+        const input = document.getElementById(inputId);
+        const range = input.nextElementSibling.nextElementSibling.querySelector('input[type="range"]');
+        const valueSpan = document.getElementById(inputId.replace('_', '-') + '-value');
+        
+        // Update range when input changes
+        input.addEventListener('input', function() {
+            range.value = this.value;
+            valueSpan.textContent = this.value;
+        });
+        
+        // Update input when range changes
+        range.addEventListener('input', function() {
+            input.value = this.value;
+            valueSpan.textContent = this.value;
+        });
+        
+        // Initialize values
+        valueSpan.textContent = input.value;
+    });
+    
+    // Show loading spinner on form submit
+    document.getElementById('forecastForm').addEventListener('submit', function() {
+        document.getElementById('loadingSpinner').style.display = 'block';
+    });
+    
+    // Crop card selection
+    document.querySelectorAll('.crop-card').forEach(card => {
+        card.addEventListener('click', function() {
+            // Remove selected class from all cards
+            document.querySelectorAll('.crop-card').forEach(c => c.classList.remove('selected'));
+            
+            // Add selected class to clicked card
+            this.classList.add('selected');
+            
+            // Update the select dropdown
+            const cropType = this.dataset.crop;
+            document.getElementById('crop_type').value = cropType;
+        });
+    });
+});
+</script>
+{% endblock %}

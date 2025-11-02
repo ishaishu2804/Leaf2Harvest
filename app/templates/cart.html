@@ -1,0 +1,492 @@
+{% extends "base.html" %}
+
+{% block title %}🛒 Shopping Cart - LeafToHarvest{% endblock %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    body {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        font-family: 'Poppins', sans-serif;
+        min-height: 100vh;
+    }
+    
+    .cart-hero {
+        background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 40px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .cart-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    .cart-hero h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .cart-hero p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .cart-container {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e9ecef;
+        margin-bottom: 3rem;
+    }
+    
+    .cart-item {
+        display: flex;
+        align-items: center;
+        padding: 1.5rem;
+        border: 1px solid #e9ecef;
+        border-radius: 15px;
+        margin-bottom: 1rem;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+    
+    .cart-item:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    
+    .item-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 12px;
+        margin-right: 1.5rem;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    }
+    
+    .item-image-placeholder {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 1.5rem;
+        margin-right: 1.5rem;
+    }
+    
+    .item-details {
+        flex: 1;
+    }
+    
+    .item-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+    
+    .item-farmer {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .item-unit {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .item-price {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2e7d32;
+        margin-right: 1rem;
+        min-width: 100px;
+        text-align: right;
+    }
+    
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-right: 1rem;
+    }
+    
+    .quantity-input {
+        width: 60px;
+        padding: 8px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: 600;
+    }
+    
+    .quantity-input:focus {
+        border-color: #4caf50;
+        outline: none;
+    }
+    
+    .quantity-btn {
+        background: #4caf50;
+        border: none;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .quantity-btn:hover {
+        background: #2e7d32;
+        transform: scale(1.1);
+    }
+    
+    .quantity-btn:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .item-subtotal {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-right: 1rem;
+        min-width: 100px;
+        text-align: right;
+    }
+    
+    .item-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-remove {
+        background: #dc3545;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 12px;
+        color: white;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-remove:hover {
+        background: #c82333;
+        transform: translateY(-1px);
+    }
+    
+    .cart-summary {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .summary-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .summary-row:last-child {
+        border-bottom: none;
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: #2e7d32;
+    }
+    
+    .summary-label {
+        color: #6c757d;
+    }
+    
+    .summary-value {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+    
+    .checkout-btn {
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        border: none;
+        border-radius: 12px;
+        padding: 15px 30px;
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+        width: 100%;
+        margin-top: 1.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .checkout-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .empty-cart {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+    
+    .empty-cart-icon {
+        font-size: 4rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-cart h3 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-cart p {
+        color: #6c757d;
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .continue-shopping-btn {
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        border: none;
+        border-radius: 12px;
+        padding: 12px 30px;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .continue-shopping-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    @media (max-width: 768px) {
+        .cart-hero h1 {
+            font-size: 2rem;
+        }
+        
+        .cart-item {
+            flex-direction: column;
+            align-items: stretch;
+            text-align: center;
+        }
+        
+        .item-image, .item-image-placeholder {
+            margin: 0 auto 1rem auto;
+        }
+        
+        .item-details {
+            margin-bottom: 1rem;
+        }
+        
+        .item-price, .item-subtotal {
+            text-align: center;
+            margin: 0.5rem 0;
+        }
+        
+        .quantity-controls {
+            justify-content: center;
+            margin: 0.5rem 0;
+        }
+        
+        .item-actions {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Cart Hero Section -->
+<div class="cart-hero">
+    <div class="container text-center">
+        <h1>🛒 Shopping Cart</h1>
+        <p class="lead mb-0">Review your selected products and proceed to checkout</p>
+    </div>
+</div>
+
+<div class="container py-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if cart and cart.items %}
+        <div class="cart-container">
+            <h2 class="mb-4">Your Cart Items</h2>
+            
+            {% for item in cart.items %}
+            <div class="cart-item">
+                {% if item.product.image_url %}
+                    <img src="{{ url_for('static', filename=item.product.image_url) }}" class="item-image" alt="{{ item.product.name }}">
+                {% else %}
+                    <div class="item-image-placeholder">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                {% endif %}
+                
+                <div class="item-details">
+                    <div class="item-name">{{ item.product.name }}</div>
+                    <div class="item-farmer">by {{ item.product.farmer.username }}</div>
+                    <div class="item-unit">per {{ item.product.unit }}</div>
+                </div>
+                
+                <div class="item-price">₹{{ "%.2f"|format(item.price_at_order) }}</div>
+                
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="updateQuantity({{ item.id }}, {{ item.quantity - 1 }})" 
+                            {% if item.quantity <= 1 %}disabled{% endif %}>-</button>
+                    <input type="number" class="quantity-input" id="qty_{{ item.id }}" value="{{ item.quantity }}" 
+                           min="1" max="{{ item.product.quantity_available }}" 
+                           onchange="updateQuantity({{ item.id }}, this.value)">
+                    <button class="quantity-btn" onclick="updateQuantity({{ item.id }}, {{ item.quantity + 1 }})"
+                            {% if item.quantity >= item.product.quantity_available %}disabled{% endif %}>+</button>
+                </div>
+                
+                <div class="item-subtotal">₹{{ "%.2f"|format(item.quantity * item.price_at_order) }}</div>
+                
+                <div class="item-actions">
+                    <button class="btn-remove" onclick="removeItem({{ item.id }})">
+                        <i class="fas fa-trash"></i> Remove
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <!-- Cart Summary -->
+            <div class="cart-summary">
+                <h3 class="summary-title">Order Summary</h3>
+                
+                <div class="summary-row">
+                    <span class="summary-label">Subtotal ({{ cart.items|length }} items)</span>
+                    <span class="summary-value">₹{{ "%.2f"|format(cart.total_price) }}</span>
+                </div>
+                
+                <div class="summary-row">
+                    <span class="summary-label">Shipping</span>
+                    <span class="summary-value">Free</span>
+                </div>
+                
+                <div class="summary-row">
+                    <span class="summary-label">Tax</span>
+                    <span class="summary-value">₹0.00</span>
+                </div>
+                
+                <div class="summary-row">
+                    <span class="summary-label">Total</span>
+                    <span class="summary-value">₹{{ "%.2f"|format(cart.total_price) }}</span>
+                </div>
+                
+                <a href="{{ url_for('checkout') }}" class="checkout-btn">
+                    <i class="fas fa-credit-card"></i> Proceed to Checkout
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-cart">
+            <div class="empty-cart-icon">🛒</div>
+            <h3>Your cart is empty</h3>
+            <p>Looks like you haven't added any items to your cart yet. Start shopping to fill it up!</p>
+            <a href="{{ url_for('marketplace') }}" class="continue-shopping-btn">
+                <i class="fas fa-shopping-bag"></i> Continue Shopping
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    function updateQuantity(itemId, newQuantity) {
+        if (newQuantity < 1) return;
+        
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ url_for("update_cart_item", item_id=0) }}'.replace('0', itemId);
+        
+        const quantityInput = document.createElement('input');
+        quantityInput.type = 'hidden';
+        quantityInput.name = 'quantity';
+        quantityInput.value = newQuantity;
+        
+        form.appendChild(quantityInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+    
+    function removeItem(itemId) {
+        if (confirm('Are you sure you want to remove this item from your cart?')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ url_for("remove_from_cart", item_id=0) }}'.replace('0', itemId);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+{% endblock %} 

@@ -1,0 +1,546 @@
+{% extends "base.html" %}
+
+{% block title %}🌾 Farmers Marketplace - LeafToHarvest{% endblock %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    body {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        font-family: 'Poppins', sans-serif;
+        min-height: 100vh;
+    }
+    
+    .marketplace-hero {
+        background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+        color: white;
+        padding: 60px 0;
+        margin-bottom: 40px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .marketplace-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: float 8s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-30px) rotate(180deg); }
+    }
+    
+    .marketplace-hero h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .marketplace-hero p {
+        font-size: 1.3rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .search-container {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 3rem;
+        border: 1px solid #e9ecef;
+    }
+    
+    .search-form {
+        display: flex;
+        gap: 1rem;
+        align-items: end;
+        flex-wrap: wrap;
+    }
+    
+    .search-input-group {
+        flex: 1;
+        min-width: 300px;
+    }
+    
+    .search-input {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 12px 20px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .search-input:focus {
+        border-color: #4caf50;
+        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        outline: none;
+    }
+    
+    .filter-select {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 12px 15px;
+        font-size: 1rem;
+        background: white;
+        min-width: 150px;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-select:focus {
+        border-color: #4caf50;
+        outline: none;
+    }
+    
+    .search-btn {
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        border: none;
+        border-radius: 12px;
+        padding: 12px 30px;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        min-width: 120px;
+    }
+    
+    .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+    }
+    
+    .clear-btn {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        border: none;
+        border-radius: 12px;
+        padding: 12px 20px;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .clear-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .product-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+        position: relative;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .product-image {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    }
+    
+    .product-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .product-content {
+        padding: 1.5rem;
+    }
+    
+    .product-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+    }
+    
+    .product-description {
+        color: #6c757d;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        margin-bottom: 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .product-price {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2e7d32;
+        margin-bottom: 0.5rem;
+    }
+    
+    .product-unit {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    
+    .product-availability {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .availability-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #4caf50;
+    }
+    
+    .availability-dot.out-of-stock {
+        background: #dc3545;
+    }
+    
+    .farmer-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        padding: 0.75rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    
+    .farmer-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .farmer-details h6 {
+        margin: 0;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.9rem;
+    }
+    
+    .farmer-details small {
+        color: #6c757d;
+        font-size: 0.8rem;
+    }
+    
+    .product-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+    
+    .btn-add-cart {
+        flex: 1;
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        border: none;
+        border-radius: 12px;
+        padding: 12px 20px;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-add-cart:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-add-cart:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .btn-view-details {
+        background: white;
+        border: 2px solid #4caf50;
+        border-radius: 12px;
+        padding: 12px 20px;
+        color: #4caf50;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-view-details:hover {
+        background: #4caf50;
+        color: white;
+        text-decoration: none;
+    }
+    
+    .no-products {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+    
+    .no-products-icon {
+        font-size: 4rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+    }
+    
+    .no-products h3 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+    
+    .no-products p {
+        color: #6c757d;
+        font-size: 1.1rem;
+    }
+    
+    .stats-bar {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2e7d32;
+        display: block;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+    }
+    
+    @media (max-width: 768px) {
+        .marketplace-hero h1 {
+            font-size: 2rem;
+        }
+        
+        .search-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .search-input-group {
+            min-width: auto;
+        }
+        
+        .products-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        
+        .stats-bar {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Marketplace Hero Section -->
+<div class="marketplace-hero">
+    <div class="container text-center">
+        <h1>🌾 Farmers Marketplace</h1>
+        <p class="lead mb-0">Connect directly with local farmers and discover fresh, quality products</p>
+    </div>
+</div>
+
+<div class="container py-4">
+    <!-- Search and Filter Container -->
+    <div class="search-container">
+        <form method="GET" action="{{ url_for('marketplace') }}" class="search-form">
+            <div class="search-input-group">
+                <input type="text" class="search-input" name="search" 
+                       placeholder="Search for products, farmers, or categories..." 
+                       value="{{ request.args.get('search', '') }}">
+            </div>
+            <select class="filter-select" name="category">
+                <option value="">All Categories</option>
+                <option value="vegetables" {% if request.args.get('category') == 'vegetables' %}selected{% endif %}>Vegetables</option>
+                <option value="fruits" {% if request.args.get('category') == 'fruits' %}selected{% endif %}>Fruits</option>
+                <option value="grains" {% if request.args.get('category') == 'grains' %}selected{% endif %}>Grains</option>
+                <option value="seeds" {% if request.args.get('category') == 'seeds' %}selected{% endif %}>Seeds</option>
+                <option value="organic" {% if request.args.get('category') == 'organic' %}selected{% endif %}>Organic</option>
+            </select>
+            <select class="filter-select" name="price_range">
+                <option value="">Any Price</option>
+                <option value="0-50" {% if request.args.get('price_range') == '0-50' %}selected{% endif %}>Under ₹50</option>
+                <option value="50-100" {% if request.args.get('price_range') == '50-100' %}selected{% endif %}>₹50 - ₹100</option>
+                <option value="100-200" {% if request.args.get('price_range') == '100-200' %}selected{% endif %}>₹100 - ₹200</option>
+                <option value="200+" {% if request.args.get('price_range') == '200+' %}selected{% endif %}>Above ₹200</option>
+            </select>
+            <button type="submit" class="search-btn">
+                <i class="fas fa-search"></i> Search
+            </button>
+            <a href="{{ url_for('marketplace') }}" class="clear-btn">
+                <i class="fas fa-times"></i> Clear
+            </a>
+        </form>
+    </div>
+
+    <!-- Statistics Bar -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-number">{{ products|length if products else 0 }}</span>
+            <div class="stat-label">Products Available</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ products|selectattr('farmer')|map(attribute='farmer.username')|unique|list|length if products else 0 }}</span>
+            <div class="stat-label">Active Farmers</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ products|selectattr('quantity_available', 'gt', 0)|list|length if products else 0 }}</span>
+            <div class="stat-label">In Stock</div>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    {% if products %}
+    <div class="products-grid">
+        {% for product in products %}
+        <div class="product-card">
+            {% if product.image_url %}
+                <img src="{{ url_for('static', filename=product.image_url) }}" class="product-image" alt="{{ product.name }}">
+            {% else %}
+                <div class="product-image" style="display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 3rem;">
+                    <i class="fas fa-seedling"></i>
+                </div>
+            {% endif %}
+            
+            {% if product.quantity_available > 0 %}
+                <div class="product-badge">In Stock</div>
+            {% else %}
+                <div class="product-badge" style="background: linear-gradient(135deg, #dc3545, #c82333);">Out of Stock</div>
+            {% endif %}
+            
+            <div class="product-content">
+                <h5 class="product-title">{{ product.name }}</h5>
+                <p class="product-description">{{ product.description or 'Fresh, quality product from local farmer' }}</p>
+                
+                <div class="product-price">₹{{ "%.2f"|format(product.price) }}</div>
+                <div class="product-unit">per {{ product.unit }}</div>
+                
+                <div class="product-availability">
+                    <div class="availability-dot {% if product.quantity_available <= 0 %}out-of-stock{% endif %}"></div>
+                    <span>{{ product.quantity_available }} {{ product.unit }} available</span>
+                </div>
+                
+                <div class="farmer-info">
+                    <div class="farmer-avatar">
+                        {{ product.farmer.username[0].upper() }}
+                    </div>
+                    <div class="farmer-details">
+                        <h6>{{ product.farmer.username }}</h6>
+                        <small>Verified Farmer</small>
+                    </div>
+                </div>
+                
+                <div class="product-actions">
+                    {% if product.quantity_available > 0 %}
+                        <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST" style="flex: 1;">
+                            <button type="submit" class="btn-add-cart">
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                            </button>
+                        </form>
+                    {% else %}
+                        <button class="btn-add-cart" disabled>
+                            <i class="fas fa-times"></i> Out of Stock
+                        </button>
+                    {% endif %}
+                    <a href="{{ url_for('product_details', product_id=product.id) }}" class="btn-view-details">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-products">
+        <div class="no-products-icon">🔍</div>
+        <h3>No Products Found</h3>
+        <p>Try adjusting your search criteria or browse all available products.</p>
+        <a href="{{ url_for('marketplace') }}" class="btn btn-success mt-3">
+            <i class="fas fa-refresh"></i> View All Products
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

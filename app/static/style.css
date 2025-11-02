@@ -1,0 +1,402 @@
+/* General Body and Background */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa; /* Light grey background */
+    color: #333;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-image: url('your_background_image.jpg'); /* Replace with your image file */
+    background-size: cover; /* Cover the entire viewport */
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Do not repeat the image */
+    background-attachment: fixed; /* Fix the background when scrolling */
+}
+
+/* Navbar Styling */
+.navbar {
+    background-color: #ffffff; /* White navbar background */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    color: #28a745 !important; /* Green brand color */
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    color: #555 !important; /* Darker grey for links */
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.nav-link:hover {
+    color: #28a745 !important; /* Green on hover */
+    transform: translateY(-2px);
+}
+
+.navbar-nav .nav-item .nav-link.active {
+    color: #28a745 !important;
+    font-weight: 600;
+}
+
+/* Dropdown Menu Styling */
+.navbar-nav .dropdown-menu {
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-nav .dropdown-item {
+    color: #555;
+    transition: background-color 0.2s ease;
+}
+
+.navbar-nav .dropdown-item:hover {
+    background-color: #f2f2f2;
+    color: #28a745;
+}
+
+.navbar-nav .dropdown-item.disabled {
+    color: #ccc;
+}
+
+/* Content Wrapper */
+.content-wrap {
+    flex-grow: 1;
+    padding-top: 20px; /* Add some padding below the navbar */
+}
+
+/* Footer Styling */
+.footer {
+    background-color: #f8f9fa; /* Match body background or a slightly different shade */
+    color: #666;
+    padding: 20px 0;
+    margin-top: 40px; /* Add space above the footer */
+    border-top: 1px solid #eee; /* Subtle border */
+}
+
+/* Card Styling */
+.card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-header {
+    background-color: #28a745; /* Green header */
+    color: white;
+    font-weight: 600;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+/* Button Styling */
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-outline-success {
+    color: #28a745;
+    border-color: #28a745;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.btn-outline-success:hover {
+    color: #fff;
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-secondary {
+     background-color: #6c757d;
+     border-color: #6c757d;
+     transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.btn-secondary:hover {
+     background-color: #545b62;
+     border-color: #4e555b;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    color: #333;
+}
+
+.lead {
+    color: #555;
+}
+
+/* Utility Classes (if needed) */
+.text-success {
+    color: #28a745 !important;
+}
+
+.bg-success {
+    background-color: #28a745 !important;
+}
+
+.bg-opacity-10 {
+    background-color: rgba(40, 167, 69, 0.1) !important;
+}
+
+/* Specific Index Page Hero Section */
+.container-fluid.bg-success.bg-opacity-10.py-5 {
+    margin-bottom: 40px; /* Add space below the hero section */
+}
+
+/* Feature Icons */
+.fas {
+    color: #28a745;
+}
+
+/* Flash Messages */
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-color: #f5c6cb;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-color: #bee5eb;
+}
+
+.alert-dismissible .btn-close {
+    padding: 0.5em 0.5em;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1.3rem;
+    }
+
+    .nav-link {
+        padding-left: 0 !important;
+    }
+
+    .navbar-nav.me-auto {
+        margin-bottom: 10px;
+    }
+    
+    /* Crop Diagnosis Mobile Improvements */
+    .diagnosis-hero {
+        padding: 40px 0;
+    }
+    
+    .diagnosis-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .upload-area {
+        padding: 30px 20px;
+    }
+    
+    .upload-icon {
+        font-size: 3rem;
+    }
+    
+    .step-indicator {
+        margin-bottom: 20px;
+    }
+    
+    .step {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+    
+    .step-line {
+        width: 30px;
+    }
+    
+    .analyze-btn {
+        padding: 12px 30px;
+        font-size: 1rem;
+    }
+    
+    .feature-card {
+        margin-bottom: 20px;
+    }
+    
+    /* Diagnosis Result Mobile */
+    .result-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .disease-badge {
+        padding: 12px 20px;
+        font-size: 1rem;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+        max-width: 300px;
+        margin-bottom: 10px;
+    }
+    
+    /* Diagnosis History Mobile */
+    .history-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .stat-card {
+        padding: 15px;
+    }
+    
+    .stat-icon {
+        font-size: 2rem;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .diagnosis-item {
+        padding: 15px;
+    }
+    
+    .diagnosis-image {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .filter-buttons {
+        justify-content: center;
+        margin-bottom: 15px;
+    }
+    
+    .filter-btn {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+    
+    .action-buttons {
+        justify-content: center;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .btn-sm-custom {
+        width: 100%;
+        max-width: 120px;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    .diagnosis-hero h1 {
+        font-size: 1.8rem;
+    }
+    
+    .result-hero h1 {
+        font-size: 1.8rem;
+    }
+    
+    .history-hero h1 {
+        font-size: 1.8rem;
+    }
+    
+    .upload-area {
+        padding: 25px 15px;
+    }
+    
+    .upload-area h4 {
+        font-size: 1.1rem;
+    }
+    
+    .step-indicator {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .step {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+    
+    .step-line {
+        width: 20px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .diagnosis-item .row {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .diagnosis-item .col-md-2,
+    .diagnosis-item .col-md-3 {
+        margin-bottom: 15px;
+    }
+    
+    .modal-dialog {
+        margin: 10px;
+    }
+    
+    .modal-body .row {
+        flex-direction: column;
+    }
+    
+    .modal-body .col-md-4,
+    .modal-body .col-md-8 {
+        margin-bottom: 15px;
+    }
+}
+
+/* Add hover effect to buttons */
+.btn {
+    transition: transform 0.2s ease-in-out; /* Smooth transition */
+}
+
+.btn:hover {
+    transform: scale(1.05); /* Slightly enlarge button on hover */
+}
+
+/* Add hover effect to links in list groups on index page */
+.list-group-item a {
+     text-decoration: none; /* Remove default underline */
+     transition: text-decoration 0.2s ease-in-out; /* Smooth transition */
+}
+
+.list-group-item a:hover {
+    text-decoration: underline; /* Add underline on hover */
+} 

@@ -1,0 +1,587 @@
+{% extends "base.html" %}
+
+{% block title %}🛡️ Preventive Measures & Crop Care{% endblock %}
+
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    
+    body {
+        background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 50%, #e3f2fd 100%);
+        font-family: 'Poppins', sans-serif;
+        min-height: 100vh;
+    }
+    
+    .main-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    .hero-section {
+        background: linear-gradient(135deg, #2e7d32, #4caf50);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        text-align: center;
+        color: white;
+        margin-bottom: 3rem;
+        box-shadow: 0 10px 30px rgba(46, 125, 50, 0.3);
+    }
+    
+    .hero-section h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .hero-section p {
+        font-size: 1.3rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+    }
+    
+    .motivational-quote {
+        background: rgba(255,255,255,0.2);
+        border-radius: 15px;
+        padding: 1.5rem;
+        font-style: italic;
+        font-size: 1.2rem;
+        border-left: 4px solid #fff;
+    }
+    
+    /* Dynamic Tips Section */
+    .dynamic-tips {
+        background: linear-gradient(135deg, #fff, #f8f9fa);
+        border-radius: 20px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+    }
+    
+    .tip-card {
+        background: #ffffff;
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 1.5rem 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border-left: 5px solid #4caf50;
+        transition: all 0.3s ease;
+    }
+    
+    .tip-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .tip-card.high-risk {
+        border-left-color: #f44336;
+        background: linear-gradient(135deg, #ffebee, #ffffff);
+    }
+    
+    .tip-card.moderate-risk {
+        border-left-color: #ff9800;
+        background: linear-gradient(135deg, #fff3e0, #ffffff);
+    }
+    
+    .tip-card.low-risk {
+        border-left-color: #4caf50;
+        background: linear-gradient(135deg, #e8f5e8, #ffffff);
+    }
+    
+    .tip-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+    
+    .tip-title {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+    }
+    
+    .tip-description {
+        color: #5d6d7e;
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+    
+    /* Crop-Specific Cards */
+    .crop-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+    
+    .crop-card {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .crop-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #4caf50, #8bc34a);
+    }
+    
+    .crop-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+    
+    .crop-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .crop-icon {
+        font-size: 3rem;
+        margin-right: 1rem;
+    }
+    
+    .crop-name {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin: 0;
+    }
+    
+    .disease-list {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .disease-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .disease-item:last-child {
+        border-bottom: none;
+    }
+    
+    .disease-icon {
+        font-size: 1.2rem;
+        margin-right: 0.75rem;
+    }
+    
+    .prevention-methods {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .method-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+    }
+    
+    .method-card.organic {
+        border-left: 4px solid #4caf50;
+    }
+    
+    .method-card.chemical {
+        border-left: 4px solid #ff9800;
+    }
+    
+    .soil-info {
+        background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    /* Do's and Don'ts Section */
+    .dos-donts {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 2.5rem;
+        margin: 3rem 0;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    
+    .dos-donts-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .dos-section {
+        background: linear-gradient(135deg, #e8f5e8, #f1f8e9);
+        border-radius: 15px;
+        padding: 2rem;
+        border-left: 5px solid #4caf50;
+    }
+    
+    .donts-section {
+        background: linear-gradient(135deg, #ffebee, #fce4ec);
+        border-radius: 15px;
+        padding: 2rem;
+        border-left: 5px solid #f44336;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .dos-title {
+        color: #2e7d32;
+    }
+    
+    .donts-title {
+        color: #c62828;
+    }
+    
+    .action-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .action-item:last-child {
+        border-bottom: none;
+    }
+    
+    .action-icon {
+        font-size: 1.3rem;
+        margin-right: 1rem;
+        margin-top: 0.2rem;
+    }
+    
+    .action-text {
+        color: #2c3e50;
+        font-size: 1.1rem;
+        line-height: 1.5;
+    }
+    
+    /* Animated Icons */
+    .animated-icon {
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .pulse-icon {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .hero-section h1 {
+            font-size: 2rem;
+        }
+        
+        .crop-cards {
+            grid-template-columns: 1fr;
+        }
+        
+        .dos-donts-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .prevention-methods {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="main-container">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <h1>🛡️ Preventive Measures & Crop Care</h1>
+        <p>Smart farming starts with prevention. Protect your crops with science-backed strategies.</p>
+        <div class="motivational-quote">
+            "Prevention today keeps the pests away tomorrow 🌾"
+        </div>
+    </div>
+
+    <!-- Dynamic Preventive Tips Section -->
+    <div class="dynamic-tips">
+        <h2 class="text-center mb-4">
+            <span class="animated-icon">🌡️</span> Dynamic Preventive Tips
+        </h2>
+        <p class="text-center text-muted mb-4">Tips based on current weather conditions and risk levels</p>
+        
+        <div class="tip-card high-risk">
+            <span class="tip-icon">🌧️</span>
+            <div class="tip-title">High Fungal Risk Detected!</div>
+            <div class="tip-description">
+                <strong>Condition:</strong> Humidity > 70% and Temperature 25-30°C<br>
+                <strong>Action:</strong> Spray Trichoderma biofungicide weekly. Apply copper-based fungicide as backup. Ensure proper air circulation and avoid overhead watering.
+            </div>
+        </div>
+        
+        <div class="tip-card moderate-risk">
+            <span class="tip-icon">☀️</span>
+            <div class="tip-title">Moderate Pest Risk</div>
+            <div class="tip-description">
+                <strong>Condition:</strong> Warm temperatures with moderate humidity<br>
+                <strong>Action:</strong> Monitor crops daily. Apply neem oil spray every 10 days. Use yellow sticky traps for early pest detection.
+            </div>
+        </div>
+        
+        <div class="tip-card low-risk">
+            <span class="tip-icon">🌫️</span>
+            <div class="tip-title">Low Risk Conditions</div>
+            <div class="tip-description">
+                <strong>Condition:</strong> Cool, dry weather with good air circulation<br>
+                <strong>Action:</strong> Maintain regular monitoring. Focus on soil health and plant nutrition. Perfect time for preventive treatments.
+            </div>
+        </div>
+    </div>
+
+    <!-- Crop-Specific Preventive Cards -->
+    <div class="crop-cards">
+        <div class="crop-card">
+            <div class="crop-header">
+                <span class="crop-icon">🌾</span>
+                <h3 class="crop-name">Rice</h3>
+            </div>
+            
+            <div class="disease-list">
+                <h5>Common Diseases in Current Conditions:</h5>
+                <div class="disease-item">
+                    <span class="disease-icon">🦠</span>
+                    <span>Blast Disease (Pyricularia oryzae)</span>
+                </div>
+                <div class="disease-item">
+                    <span class="disease-icon">🍄</span>
+                    <span>Brown Spot (Bipolaris oryzae)</span>
+                </div>
+                <div class="disease-item">
+                    <span class="disease-icon">🐛</span>
+                    <span>Stem Borer (Scirpophaga incertulas)</span>
+                </div>
+            </div>
+            
+            <div class="prevention-methods">
+                <div class="method-card organic">
+                    <h6>🌿 Organic Methods</h6>
+                    <p>• Trichoderma application<br>• Neem oil spray<br>• Bio-fertilizers</p>
+                </div>
+                <div class="method-card chemical">
+                    <h6>🧪 Chemical Methods</h6>
+                    <p>• Propiconazole fungicide<br>• Carbendazim treatment<br>• Chlorpyrifos insecticide</p>
+                </div>
+            </div>
+            
+            <div class="soil-info">
+                <h6>🌱 Ideal Soil Conditions</h6>
+                <p><strong>Moisture:</strong> 60-80% field capacity<br>
+                <strong>pH:</strong> 6.0-7.0<br>
+                <strong>Temperature:</strong> 25-30°C for germination</p>
+            </div>
+        </div>
+
+        <div class="crop-card">
+            <div class="crop-header">
+                <span class="crop-icon">🌽</span>
+                <h3 class="crop-name">Corn</h3>
+            </div>
+            
+            <div class="disease-list">
+                <h5>Common Diseases in Current Conditions:</h5>
+                <div class="disease-item">
+                    <span class="disease-icon">🦠</span>
+                    <span>Corn Smut (Ustilago maydis)</span>
+                </div>
+                <div class="disease-item">
+                    <span class="disease-icon">🍄</span>
+                    <span>Gray Leaf Spot (Cercospora zeae-maydis)</span>
+                </div>
+                <div class="disease-item">
+                    <span class="disease-icon">🐛</span>
+                    <span>Corn Earworm (Helicoverpa zea)</span>
+                </div>
+            </div>
+            
+            <div class="prevention-methods">
+                <div class="method-card organic">
+                    <h6>🌿 Organic Methods</h6>
+                    <p>• Bacillus thuringiensis<br>• Companion planting<br>• Crop rotation</p>
+                </div>
+                <div class="method-card chemical">
+                    <h6>🧪 Chemical Methods</h6>
+                    <p>• Azoxystrobin fungicide<br>• Spinosad insecticide<br>• Mancozeb treatment</p>
+                </div>
+            </div>
+            
+            <div class="soil-info">
+                <h6>🌱 Ideal Soil Conditions</h6>
+                <p><strong>Moisture:</strong> 50-70% field capacity<br>
+                <strong>pH:</strong> 6.0-6.8<br>
+                <strong>Temperature:</strong> 20-30°C for growth</p>
+            </div>
+        </div>
+
+        <div class="crop-card">
+            <div class="crop-header">
+                <span class="crop-icon">🥬</span>
+                <h3 class="crop-name">Vegetables</h3>
+            </div>
+            
+            <div class="disease-list">
+                <h5>Common Diseases in Current Conditions:</h5>
+                <div class="disease-item">
+                    <span class="disease-icon">🦠</span>
+                    <span>Powdery Mildew (Erysiphe spp.)</span>
+                </div>
+                <div class="disease-item">
+                    <span class="disease-icon">🍄</span>
+                    <span>Bacterial Blight (Xanthomonas)</span>
+                </div>
+                <div class="disease-item">
+                    <span class="disease-icon">🐛</span>
+                    <span>Aphids (Aphidoidea)</span>
+                </div>
+            </div>
+            
+            <div class="prevention-methods">
+                <div class="method-card organic">
+                    <h6>🌿 Organic Methods</h6>
+                    <p>• Garlic spray<br>• Ladybug release<br>• Mulching</p>
+                </div>
+                <div class="method-card chemical">
+                    <h6>🧪 Chemical Methods</h6>
+                    <p>• Sulfur fungicide<br>• Imidacloprid insecticide<br>• Copper spray</p>
+                </div>
+            </div>
+            
+            <div class="soil-info">
+                <h6>🌱 Ideal Soil Conditions</h6>
+                <p><strong>Moisture:</strong> 40-60% field capacity<br>
+                <strong>pH:</strong> 6.0-7.0<br>
+                <strong>Temperature:</strong> 15-25°C for most vegetables</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Do's and Don'ts Section -->
+    <div class="dos-donts">
+        <h2 class="text-center mb-4">
+            <span class="pulse-icon">💡</span> Do's & Don'ts for Healthy Crops
+        </h2>
+        
+        <div class="dos-donts-grid">
+            <div class="dos-section">
+                <h3 class="section-title dos-title">
+                    <span class="action-icon">✅</span> Do's
+                </h3>
+                
+                <div class="action-item">
+                    <span class="action-icon">🧽</span>
+                    <span class="action-text">Clean equipment regularly with disinfectant</span>
+                </div>
+                
+                <div class="action-item">
+                    <span class="action-icon">🔍</span>
+                    <span class="action-text">Check leaves for early spots and discoloration</span>
+                </div>
+                
+                <div class="action-item">
+                    <span class="action-icon">💧</span>
+                    <span class="action-text">Water at the base of plants, not overhead</span>
+                </div>
+                
+                <div class="action-item">
+                    <span class="action-icon">🌱</span>
+                    <span class="action-text">Practice crop rotation to break disease cycles</span>
+                </div>
+                
+                <div class="action-item">
+                    <span class="action-icon">🌿</span>
+                    <span class="action-text">Use organic mulch to retain moisture</span>
+                </div>
+                
+                <div class="action-item">
+                    <span class="action-icon">📊</span>
+                    <span class="action-text">Monitor soil pH and nutrient levels regularly</span>
+                </div>
+            </div>
+            
+            <div class="donts-section">
+                <h3 class="section-title donts-title">
+                    <span class="action-icon">❌</span> Don'ts
+                </h3>
+                
+                <div class="action-item">
+                    <span class="action-icon">💦</span>
+                    <span class="action-text">Don't overwater crops - causes root rot</span>
+                </div>
+                
+                <div class="action-item">
+                    <span class="action-icon">💨</span>
+                    <span class="action-text">Avoid spraying in strong wind conditions</span>
+                </div>
+                
+                <div class="action-item">
+                    <span class="action-icon">🌡️</span>
+                    <span class="action-text">Don't spray during peak sun hours (10 AM - 4 PM)</span>
+                </div>
+                
+                <div class="action-item">
+                    <span class="action-icon">🌧️</span>
+                    <span class="action-text">Avoid working in wet fields - spreads diseases</span>
+                </div>
+                
+                <div class="action-item">
+                    <span class="action-icon">🧪</span>
+                    <span class="action-text">Don't mix incompatible pesticides</span>
+                </div>
+                
+                <div class="action-item">
+                    <span class="action-icon">🌱</span>
+                    <span class="action-text">Avoid planting same crop in same spot repeatedly</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="text-center mt-5">
+        <a href="{{ url_for('weather') }}" class="btn btn-success btn-lg me-3">
+            <i class="fas fa-arrow-left me-2"></i>Back to Weather Dashboard
+        </a>
+        <a href="{{ url_for('health_dashboard') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-chart-line me-2"></i>View Health Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %} 

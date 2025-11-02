@@ -1,0 +1,684 @@
+{% extends "base.html" %}
+
+{% block title %}🏠 Dashboard - LeafToHarvest{% endblock %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    body {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        font-family: 'Poppins', sans-serif;
+        min-height: 100vh;
+    }
+    
+    .dashboard-hero {
+        background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 40px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .dashboard-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    .dashboard-hero h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .dashboard-hero p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .profile-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e9ecef;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .profile-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #4caf50, #2e7d32);
+    }
+    
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 2rem;
+        margin: 0 auto 1.5rem auto;
+    }
+    
+    .profile-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .profile-role {
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-align: center;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        width: 100%;
+    }
+    
+    .profile-info {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1rem;
+    }
+    
+    .profile-info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .profile-info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .profile-info-label {
+        color: #6c757d;
+        font-weight: 500;
+    }
+    
+    .profile-info-value {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #4caf50, #2e7d32);
+    }
+    
+    .stat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2e7d32;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .stat-change {
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 4px 8px;
+        border-radius: 12px;
+        margin-top: 0.5rem;
+        display: inline-block;
+    }
+    
+    .stat-change.positive {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .stat-change.negative {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .content-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e9ecef;
+        margin-bottom: 2rem;
+    }
+    
+    .content-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f8f9fa;
+    }
+    
+    .content-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .content-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+    }
+    
+    .btn-action {
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        border: none;
+        border-radius: 12px;
+        padding: 10px 20px;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .table-modern {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    
+    .table-modern thead {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    }
+    
+    .table-modern th {
+        border: none;
+        padding: 1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .table-modern td {
+        border: none;
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    
+    .table-modern tbody tr:hover {
+        background: #f8fff8;
+    }
+    
+    .badge-modern {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .badge-success {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        color: #155724;
+    }
+    
+    .badge-danger {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        color: #721c24;
+    }
+    
+    .badge-warning {
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        color: #856404;
+    }
+    
+    .btn-sm-modern {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-primary-modern {
+        background: transparent;
+        border: 2px solid #4caf50;
+        color: #4caf50;
+    }
+    
+    .btn-outline-primary-modern:hover {
+        background: #4caf50;
+        color: white;
+    }
+    
+    .btn-outline-danger-modern {
+        background: transparent;
+        border: 2px solid #dc3545;
+        color: #dc3545;
+    }
+    
+    .btn-outline-danger-modern:hover {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: #6c757d;
+    }
+    
+    .empty-state-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    @media (max-width: 768px) {
+        .dashboard-hero h1 {
+            font-size: 2rem;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .content-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Hero Section -->
+<div class="dashboard-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>Welcome back, {{ current_user.username }}! 👋</h1>
+                <p class="lead mb-0">Here's what's happening with your {{ current_user.role }} account today</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="profile-avatar">
+                    {{ current_user.username[0].upper() }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div class="row">
+        <!-- User Profile Card -->
+        <div class="col-lg-4">
+            <div class="profile-card">
+                <div class="profile-name">{{ current_user.username }}</div>
+                <div class="profile-role">{{ current_user.role|title }}</div>
+                
+                <div class="profile-info">
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Email</span>
+                        <span class="profile-info-value">{{ current_user.email }}</span>
+                    </div>
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Member Since</span>
+                        <span class="profile-info-value">{{ current_user.created_at.strftime('%B %Y') if current_user.created_at else 'Recently' }}</span>
+                    </div>
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Status</span>
+                        <span class="profile-info-value">
+                            <span class="badge-modern badge-success">Active</span>
+                        </span>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Content -->
+        <div class="col-lg-8">
+            {% if current_user.role == 'farmer' %}
+                <!-- Farmer Dashboard Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-box" style="color: #ffffff;"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">{{ products|length }}</div>
+                        <div class="stat-label">Total Products</div>
+                        <div class="stat-change positive">+2 this week</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-line" style="color: #ffffff;"></i>
+                                    </div>
+                                </div>
+                        <div class="stat-value">₹{{ total_sales|default(0)|round(2) }}</div>
+                        <div class="stat-label">Total Sales</div>
+                        <div class="stat-change positive">+15% this month</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-shopping-cart" style="color: #ffffff;"></i>
+                            </div>
+                                    </div>
+                        <div class="stat-value">{{ pending_orders|default(0) }}</div>
+                        <div class="stat-label">Pending Orders</div>
+                        <div class="stat-change negative">-3 today</div>
+                                </div>
+                    
+                    
+                </div>
+
+                <!-- Recent Products -->
+                <div class="content-card">
+                    <div class="content-header">
+                        <h3 class="content-title">
+                            <div class="content-icon">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            Recent Products
+                        </h3>
+                        <a href="{{ url_for('add_product') }}" class="btn-action">
+                            <i class="fas fa-plus"></i> Add Product
+                        </a>
+                    </div>
+                    
+                        {% if products %}
+                            <div class="table-responsive">
+                            <table class="table table-modern">
+                                    <thead>
+                                        <tr>
+                                        <th>Product</th>
+                                            <th>Price</th>
+                                        <th>Stock</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for product in products[:5] %}
+                                        <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if product.image_url %}
+                                                    <img src="{{ url_for('static', filename=product.image_url) }}" 
+                                                         alt="{{ product.name }}" 
+                                                         style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px; margin-right: 12px;">
+                                                {% else %}
+                                                    <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #4caf50, #2e7d32); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; margin-right: 12px;">
+                                                        <i class="fas fa-seedling" style="color: #ffffff;"></i>
+                                                    </div>
+                                                {% endif %}
+                                                <div>
+                                                    <div style="font-weight: 600; color: #2c3e50;">{{ product.name }}</div>
+                                                    <small style="color: #6c757d;">{{ product.category or 'General' }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td style="font-weight: 600; color: #2e7d32;">₹{{ "%.2f"|format(product.price) }}</td>
+                                        <td>{{ product.quantity_available }} {{ product.unit }}</td>
+                                        <td>
+                                            {% if product.quantity_available > 0 %}
+                                                <span class="badge-modern badge-success">In Stock</span>
+                                            {% else %}
+                                                <span class="badge-modern badge-danger">Out of Stock</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                            <a href="{{ url_for('edit_product', product_id=product.id) }}" 
+                                               class="btn btn-sm-modern btn-outline-primary-modern me-2">
+                                                <i class="fas fa-edit" style="color: #ffffff;"></i> Edit
+                                            </a>
+                                            <a href="{{ url_for('delete_product', product_id=product.id) }}" 
+                                               class="btn btn-sm-modern btn-outline-danger-modern"
+                                               onclick="return confirm('Are you sure you want to delete this product?')">
+                                                <i class="fas fa-trash" style="color: #ffffff;"></i> Delete
+                                            </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-box-open" style="color: #ffffff;"></i>
+                            </div>
+                            <h5>No products yet</h5>
+                            <p>Start by adding your first product to the marketplace</p>
+                            <a href="{{ url_for('add_product') }}" class="btn-action">
+                                <i class="fas fa-plus" style="color: #ffffff;"></i> Add Your First Product
+                            </a>
+                        </div>
+                        {% endif %}
+                </div>
+
+            {% else %}
+                <!-- Consumer Dashboard Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-shopping-bag" style="color: #ffffff;"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">{{ total_orders|default(0) }}</div>
+                        <div class="stat-label">Total Orders</div>
+                        <div class="stat-change positive">+3 this week</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock" style="color: #ffffff;"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">{{ pending_orders|default(0) }}</div>
+                        <div class="stat-label">Pending Orders</div>
+                        <div class="stat-change negative">-1 today</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-heart" style="color: #ffffff;"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">{{ saved_items|default(0) }}</div>
+                        <div class="stat-label">Saved Items</div>
+                        <div class="stat-change positive">+2 this week</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-users" style="color: #ffffff;"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">{{ favorite_farmers|default(0) }}</div>
+                        <div class="stat-label">Favorite Farmers</div>
+                        <div class="stat-change positive">+1 this month</div>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="content-card">
+                    <div class="content-header">
+                        <h3 class="content-title">
+                            <div class="content-icon">
+                                <i class="fas fa-shopping-bag" style="color: #ffffff;"></i>
+                            </div>
+                            Recent Orders
+                        </h3>
+                        <a href="{{ url_for('marketplace') }}" class="btn-action">
+                            <i class="fas fa-shopping-cart" style="color: #ffffff;"></i> Continue Shopping
+                        </a>
+                    </div>
+                    
+                    {% if orders %}
+                        <div class="table-responsive">
+                            <table class="table table-modern">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Date</th>
+                                        <th>Items</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in orders[:5] %}
+                                    <tr>
+                                        <td style="font-weight: 600; color: #2c3e50;">#{{ order.id }}</td>
+                                        <td>{{ order.order_date.strftime('%B %d, %Y') if order.order_date else 'Recently' }}</td>
+                                        <td>{{ order.items|length }} item(s)</td>
+                                        <td style="font-weight: 600; color: #2e7d32;">₹{{ "%.2f"|format(order.total_price) }}</td>
+                                        <td>
+                                            {% if order.status == 'completed' %}
+                                                <span class="badge-modern badge-success">{{ order.status|title }}</span>
+                                            {% elif order.status == 'pending' %}
+                                                <span class="badge-modern badge-warning">{{ order.status|title }}</span>
+                                            {% else %}
+                                                <span class="badge-modern badge-danger">{{ order.status|title }}</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <h5>No orders yet</h5>
+                            <p>Start shopping to see your orders here</p>
+                            <a href="{{ url_for('marketplace') }}" class="btn-action">
+                                <i class="fas fa-shopping-cart" style="color: #ffffff;"></i> Start Shopping
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

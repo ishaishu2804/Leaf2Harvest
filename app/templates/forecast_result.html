@@ -1,0 +1,559 @@
+{% extends "base.html" %}
+
+{% block title %}📊 Yield Forecast Results{% endblock %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    
+    body {
+        background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 50%, #e3f2fd 100%);
+        font-family: 'Poppins', sans-serif;
+        min-height: 100vh;
+    }
+    
+    .results-hero {
+        background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .results-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    .results-hero h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .results-hero p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .results-container {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e9ecef;
+        margin-bottom: 3rem;
+    }
+    
+    .crop-summary {
+        background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border-left: 4px solid #4caf50;
+    }
+    
+    .crop-summary h3 {
+        color: #2e7d32;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .crop-summary h3 i {
+        margin-right: 0.5rem;
+        color: #4caf50;
+    }
+    
+    .crop-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .crop-detail-item {
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .crop-detail-item .icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: #4caf50;
+    }
+    
+    .crop-detail-item .label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-bottom: 0.25rem;
+    }
+    
+    .crop-detail-item .value {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1.1rem;
+    }
+    
+    .prediction-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin: 2rem 0;
+    }
+    
+    .prediction-card {
+        background: linear-gradient(135deg, #ffffff, #f8f9fa);
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .prediction-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+    
+    .prediction-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #4caf50, #2e7d32);
+    }
+    
+    .prediction-card.yield::before {
+        background: linear-gradient(90deg, #4caf50, #2e7d32);
+    }
+    
+    .prediction-card.seed::before {
+        background: linear-gradient(90deg, #2196f3, #1976d2);
+    }
+    
+    .prediction-card .icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    
+    .prediction-card.yield .icon {
+        color: #4caf50;
+    }
+    
+    .prediction-card.seed .icon {
+        color: #2196f3;
+    }
+    
+    .prediction-card h4 {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+    }
+    
+    .prediction-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .prediction-card.seed .prediction-value {
+        background: linear-gradient(135deg, #2196f3, #1976d2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .prediction-unit {
+        color: #6c757d;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .prediction-description {
+        color: #495057;
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+    
+    .factors-section {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 2rem 0;
+        border-left: 4px solid #6c757d;
+    }
+    
+    .factors-section h4 {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .factors-section h4 i {
+        margin-right: 0.5rem;
+        color: #6c757d;
+    }
+    
+    .factor-items {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+    
+    .factor-item {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border-left: 3px solid #4caf50;
+    }
+    
+    .factor-item .factor-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+    
+    .factor-item .factor-value {
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .insights-section {
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 2rem 0;
+        border-left: 4px solid #ffc107;
+    }
+    
+    .insights-section h4 {
+        color: #856404;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .insights-section h4 i {
+        margin-right: 0.5rem;
+        color: #ffc107;
+    }
+    
+    .insight-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(133, 100, 4, 0.2);
+    }
+    
+    .insight-item:last-child {
+        border-bottom: none;
+    }
+    
+    .insight-item .icon {
+        color: #ffc107;
+        margin-right: 1rem;
+        margin-top: 0.2rem;
+        flex-shrink: 0;
+    }
+    
+    .insight-item .text {
+        color: #856404;
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .action-btn {
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .action-btn.primary {
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        color: white;
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    }
+    
+    .action-btn.secondary {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        color: white;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .action-btn.primary:hover {
+        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+    }
+    
+    .action-btn.secondary:hover {
+        box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+    }
+    
+    @media (max-width: 768px) {
+        .results-hero h1 {
+            font-size: 2rem;
+        }
+        
+        .results-container {
+            padding: 2rem;
+        }
+        
+        .prediction-cards {
+            grid-template-columns: 1fr;
+        }
+        
+        .crop-details {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
+        
+        .factor-items {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .action-btn {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Results Hero Section -->
+<div class="results-hero">
+    <div class="container text-center">
+        <h1>📊 Yield Forecast Results</h1>
+        <p class="lead mb-0">Your personalized crop yield and seed production predictions</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="results-container">
+                <!-- Crop Summary -->
+                <div class="crop-summary">
+                    <h3>
+                        <i class="fas fa-seedling"></i>{{ forecast.crop_type.title() }} Forecast Summary
+                    </h3>
+                    <p class="mb-3">Based on your farming parameters, here are the detailed predictions for your {{ forecast.crop_type }} cultivation on {{ forecast.area_planted }} acres.</p>
+                    
+                    <div class="crop-details">
+                        <div class="crop-detail-item">
+                            <div class="icon">📏</div>
+                            <div class="label">Area Planted</div>
+                            <div class="value">{{ forecast.area_planted }} acres</div>
+                        </div>
+                        <div class="crop-detail-item">
+                            <div class="icon">🌱</div>
+                            <div class="label">Seed Rate</div>
+                            <div class="value">{{ forecast.seed_rate }} kg/acre</div>
+                        </div>
+                        <div class="crop-detail-item">
+                            <div class="icon">🌿</div>
+                            <div class="label">Germination Rate</div>
+                            <div class="value">{{ forecast.expected_germination }}%</div>
+                        </div>
+                        <div class="crop-detail-item">
+                            <div class="icon">🌍</div>
+                            <div class="label">Soil Quality</div>
+                            <div class="value">{{ forecast.soil_quality }}/10</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Prediction Cards -->
+                <div class="prediction-cards">
+                    <!-- Yield Prediction -->
+                    <div class="prediction-card yield">
+                        <div class="icon">🌾</div>
+                        <h4>Predicted Yield</h4>
+                        <div class="prediction-value">{{ "%.0f"|format(forecast.predicted_yield) }}</div>
+                        <div class="prediction-unit">{{ forecast.unit }}</div>
+                        <div class="prediction-description">
+                            Total estimated crop yield based on your farming conditions and historical data analysis.
+                        </div>
+                    </div>
+                    
+                    <!-- Seed Production -->
+                    <div class="prediction-card seed">
+                        <div class="icon">🌱</div>
+                        <h4>Seed Production</h4>
+                        <div class="prediction-value">{{ "%.0f"|format(forecast.predicted_seed_production) }}</div>
+                        <div class="prediction-unit">kg</div>
+                        <div class="prediction-description">
+                            Estimated seed production for next season's planting (approximately 8% of total yield).
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Factors Considered -->
+                <div class="factors-section">
+                    <h4>
+                        <i class="fas fa-calculator"></i>Factors Considered in Analysis
+                    </h4>
+                    <div class="factor-items">
+                        <div class="factor-item">
+                            <div class="factor-label">Crop Type</div>
+                            <div class="factor-value">{{ forecast.crop_type.title() }}</div>
+                        </div>
+                        <div class="factor-item">
+                            <div class="factor-label">Planting Area</div>
+                            <div class="factor-value">{{ forecast.area_planted }} acres</div>
+                        </div>
+                        <div class="factor-item">
+                            <div class="factor-label">Seed Rate</div>
+                            <div class="factor-value">{{ forecast.seed_rate }} kg/acre</div>
+                        </div>
+                        <div class="factor-item">
+                            <div class="factor-label">Germination Rate</div>
+                            <div class="factor-value">{{ forecast.expected_germination }}%</div>
+                        </div>
+                        <div class="factor-item">
+                            <div class="factor-label">Soil Quality</div>
+                            <div class="factor-value">{{ forecast.soil_quality }}/10</div>
+                        </div>
+                        <div class="factor-item">
+                            <div class="factor-label">Analysis Method</div>
+                            <div class="factor-value">AI-Powered Algorithm</div>
+                                    </div>
+                                </div>
+                            </div>
+                
+                <!-- Insights and Recommendations -->
+                <div class="insights-section">
+                    <h4>
+                        <i class="fas fa-lightbulb"></i>AI-Generated Insights & Recommendations
+                    </h4>
+                    
+                    {% if forecast.insights %}
+                        {% for insight in forecast.insights %}
+                        <div class="insight-item">
+                            <i class="fas fa-check-circle"></i>
+                            <div class="text">{{ insight }}</div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="insight-item">
+                            <i class="fas fa-chart-line"></i>
+                            <div class="text">
+                                <strong>Yield Optimization:</strong> Your predicted yield of {{ "%.0f"|format(forecast.predicted_yield) }} {{ forecast.unit }} suggests {{ forecast.yield_category }} farming conditions.
+                            </div>
+                        </div>
+                        
+                        <div class="insight-item">
+                            <i class="fas fa-seedling"></i>
+                            <div class="text">
+                                <strong>Seed Management:</strong> You can expect to produce {{ "%.0f"|format(forecast.predicted_seed_production) }} kg of seeds, which is sufficient for {{ "%.1f"|format(forecast.predicted_seed_production / forecast.seed_rate) }} acres of next season's planting.
+                            </div>
+                        </div>
+                        
+                        <div class="insight-item">
+                            <i class="fas fa-tint"></i>
+                            <div class="text">
+                                <strong>Water Management:</strong> Ensure consistent irrigation during critical growth phases to maintain the predicted yield levels.
+                            </div>
+                        </div>
+                        
+                        <div class="insight-item">
+                            <i class="fas fa-bug"></i>
+                            <div class="text">
+                                <strong>Pest Control:</strong> Monitor for pests and diseases regularly, especially during flowering and fruiting stages.
+                            </div>
+                        </div>
+                        
+                        <div class="insight-item">
+                            <i class="fas fa-leaf"></i>
+                            <div class="text">
+                                <strong>Soil Health:</strong> Consider soil testing and appropriate fertilization to maintain or improve your current soil quality rating of {{ forecast.soil_quality }}/10.
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Confidence Score -->
+                    <div class="insight-item">
+                        <i class="fas fa-chart-bar"></i>
+                        <div class="text">
+                            <strong>Prediction Confidence:</strong> {{ forecast.confidence_score }}% confidence based on your input parameters and historical data analysis.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <a href="{{ url_for('forecast_yield') }}" class="action-btn primary">
+                        <i class="fas fa-chart-line"></i>New Forecast
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="action-btn secondary">
+                        <i class="fas fa-home"></i>Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
